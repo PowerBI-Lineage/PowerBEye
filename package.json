@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "buildDocs": "ng build && rm -rf docs && mv dist/powerBEye docs"
+    "buildDocs": "ng build --prod --output-path=docs --base-href=https://assafsun.github.io/PowerBEye/"
   },
   "private": true,
   "dependencies": {
