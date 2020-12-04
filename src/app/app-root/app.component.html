@@ -4,11 +4,11 @@
         <mat-icon>menu</mat-icon>
       </button>
       <mat-menu #menu="matMenu" [overlapTrigger]="false">
-        <button mat-menu-item>
+        <button mat-menu-item (click)="handleHomeNavigation()">
           <mat-icon>home</mat-icon>
           <span>Home</span>
         </button>
-        <button mat-menu-item>
+        <button mat-menu-item (click)="handleLineageNavigation()">
           <mat-icon>graphic_eq</mat-icon>
           <span>Tenant Lineage</span>
         </button>
