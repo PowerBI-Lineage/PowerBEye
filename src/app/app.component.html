@@ -1,4 +1,18 @@
 <mat-toolbar color="primary">
-    <mat-icon>menu</mat-icon>
-    <span class="title">PowerBEye</span>
+    <span class="fill-remaining-space">
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" [overlapTrigger]="false">
+        <button mat-menu-item>
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>graphic_eq</mat-icon>
+          <span>Tenant Lineage</span>
+        </button>
+      </mat-menu>
+    </span>
+    <span class="fill-remaining-space">PowerBEye</span>
 </mat-toolbar>
