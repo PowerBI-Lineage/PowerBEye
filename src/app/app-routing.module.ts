@@ -5,20 +5,22 @@ import { LineageContainerComponent } from './lineage/components/lineage-containe
 
 const routes: Routes = [
   {
-    path: 'home',
-    pathMatch: 'full',
-    component: HomeContainerComponent
-  },
-  {
-    path: 'lineage',
-    pathMatch: 'full',
-    component: LineageContainerComponent
-  },
-  {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'home',
-  },
+    children: [
+      {
+        path: 'home',
+        component: HomeContainerComponent
+      },
+      {
+        path: 'lineage',
+        component: LineageContainerComponent
+      },
+      {
+        path: '**',
+        redirectTo: 'home',
+      },
+    ],
+  }
 ];
 
 @NgModule({
