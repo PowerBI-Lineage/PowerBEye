@@ -9,11 +9,11 @@ const routes: Routes = [
     children: [
       {
         path: 'home',
-        component: HomeContainerComponent
+        loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
       },
       {
         path: 'lineage',
-        component: LineageContainerComponent
+        loadChildren: () => import('./lineage/lineage.module').then(m => m.LineageModule)
       },
       {
         path: '**',
