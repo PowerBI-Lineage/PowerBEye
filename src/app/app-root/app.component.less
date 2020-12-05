@@ -1,6 +1,9 @@
+@toolBarHeight: 64px;
+
 :host {
   display: flex;
   flex-direction: column;
+  height: 100vh;
 
   .title {
     margin-left: 4px;
@@ -8,6 +11,13 @@
 
   .fill-remaining-space {
     flex: 1 1 auto;
+  }
+
+  .containerRoute {
+    height: -moz-calc(100% - @toolBarHeight); /* Firefox */
+    height: -webkit-calc(100% - @toolBarHeight); /* Chrome, Safari */
+    height: calc(100% - @toolBarHeight); /* IE9+ and future browsers */
+    width: 100%;
   }
 }
 
