@@ -1,2 +1,2 @@
 # PowerBEye
-https://powerbib-a-team.github.io/PowerBEye/
+https://powerbi-a-team.github.io/PowerBEye/
