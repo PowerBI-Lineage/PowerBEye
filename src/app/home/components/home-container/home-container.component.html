@@ -1,4 +1,6 @@
 <section class="container">
-    <p>home-container works!</p>
-    <button (click)="sendModifyWorkspaces()">test</button>
+    <p>Scan status: {{scanInfo?.status}}</p>
+    <button (click)="startScan()">Start scan</button>
+    <button (click)="getStatus()">Status</button>
+    <button (click)="downloadFiles()">download</button>
 </section>

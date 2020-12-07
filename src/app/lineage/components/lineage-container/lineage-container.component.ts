@@ -44,11 +44,11 @@ export class LineageContainerComponent implements OnInit {
 
   private getWorkspaceTextSize(id: string): number {
     const nodeWorkspace = this.workspaces.find(ws => ws.id === id);
-    const artifactCount = nodeWorkspace.dashboards.length 
-    + nodeWorkspace.reports.length 
-    + nodeWorkspace.datasets.length 
+    const artifactCount = nodeWorkspace.dashboards.length
+    + nodeWorkspace.reports.length
+    + nodeWorkspace.datasets.length
     + nodeWorkspace.dataflows.length;
-    
+
     let textSize = 8;
     if (artifactCount > 10 && artifactCount <= 50) {
       textSize = 16;
