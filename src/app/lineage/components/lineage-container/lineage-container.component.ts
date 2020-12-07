@@ -42,6 +42,26 @@ export class LineageContainerComponent implements OnInit {
     }
   }
 
+  private getWorkspaceTextSize(id: string): number {
+    const nodeWorkspace = this.workspaces.find(ws => ws.id === id);
+    const artifactCount = nodeWorkspace.dashboards.length 
+    + nodeWorkspace.reports.length 
+    + nodeWorkspace.datasets.length 
+    + nodeWorkspace.dataflows.length;
+    
+    let textSize = 8;
+    if (artifactCount > 10 && artifactCount <= 50) {
+      textSize = 16;
+    }
+    if (artifactCount > 50 && artifactCount <= 100) {
+      textSize = 22;
+    }
+    if (artifactCount > 100) {
+      textSize = 30;
+    }
+    return textSize;
+  }
+
   private loadLineage(): void {
 
     // Traversing all workspaces
@@ -174,8 +194,8 @@ export class LineageContainerComponent implements OnInit {
 
             const sprite = new SpriteText(node.name);
             sprite.material.depthWrite = false; // make sprite background transparent
-            sprite.color = 'rgba(255,160,0,0.8)';
-            sprite.textHeight = 8;
+            sprite.color = 'rgba(255,255,255,0.8)';
+            sprite.textHeight = this.getWorkspaceTextSize(node.id);
             return sprite;
           })
           .nodeColor((node: any) => {
