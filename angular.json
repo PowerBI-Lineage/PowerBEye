@@ -124,5 +124,8 @@
       }
     }
   },
-  "defaultProject": "powerBEye"
+  "defaultProject": "powerBEye",
+  "cli": {
+    "analytics": false
+  }
 }
