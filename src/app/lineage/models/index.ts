@@ -22,12 +22,19 @@ export interface Dataflow {
   objectId: string;
   name: string;
   workspaceId: string;
+  upstreamDataflows: DataflowReference[];
+}
+
+export interface DataflowReference {
+  targetDataflowId: string;
+  groupId: string;
 }
 
 export interface Dataset {
   id: string;
   name: string;
   workspaceId: string;
+  upstreamDataflows: DataflowReference[];
 }
 
 export interface Workspace {

@@ -66,6 +66,17 @@ export class LineageContainerComponent implements OnInit {
               source: workspaceNode.id,
               target: datasetNode.id
             });
+
+            if (dataset.upstreamDataflows) {
+              for (const upstreamDataflow of dataset.upstreamDataflows) {
+                if (upstreamDataflow.groupId != dataset.workspaceId) {
+                  this.links.push({
+                    source: upstreamDataflow.groupId,
+                    target: dataset.workspaceId
+                  });
+                }
+              }
+            }
           }
 
           for (const dataflow of workspace.dataflows) {
@@ -80,6 +91,17 @@ export class LineageContainerComponent implements OnInit {
               source: workspaceNode.id,
               target: dataflowNode.id
             });
+
+            if (dataflow.upstreamDataflows) {
+              for (const upstreamDataflow of dataflow.upstreamDataflows) {
+                if (upstreamDataflow.groupId != dataflow.workspaceId) {
+                  this.links.push({
+                    source: upstreamDataflow.groupId,
+                    target: dataflow.workspaceId
+                  });
+                }
+              }
+            }
           }
 
           for (const report of workspace.reports) {
@@ -114,8 +136,7 @@ export class LineageContainerComponent implements OnInit {
           }
       }
 
-    //Creating cross workspace connections
-    //Reports to datasets
+    //Creating cross workspace connections between Reports and datasets
     for (const report of this.reports) {
       const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
       if (reportDatasetNode) {
@@ -129,21 +150,17 @@ export class LineageContainerComponent implements OnInit {
       }
     }
 
-    //Datasets to dataflows
-
-    //Dataflows to dataflows
-
+    //Need to clear references to workspaces that weren't encountered
+    const validLinks: Link[]=  this.links.filter(link=> this.workspaces.find(workspace => workspace.id === link.source));
 
       const gData = {
         nodes: this.nodes,
-        links: this.links
+        links: validLinks
       };
 
       const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
           .graphData(gData)
-          .dagMode('lr')
-          .dagLevelDistance(500)
           .onNodeClick((node: any) => {
             if (node.type === NodeType.Workspace) {
               window.open(`https://powerbi-idog.analysis.windows-int.net/groups/${node.id}/lineage`, '_blank');
