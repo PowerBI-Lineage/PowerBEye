@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import ForceGraph3D from '3d-force-graph';
-import { Workspace } from '../../models';
+import { Workspace, Report, Dataset } from '../../models';
 import { Link, Node, NodeType } from '../../models/graphModels';
 
 @Component({
@@ -13,6 +13,8 @@ export class LineageContainerComponent implements OnInit {
   public workspaces: Workspace[];
   public nodes: Node[] = [];
   public links: Link[] = [];
+  public reports: Report[] = [];
+  public datasets: Dataset[] = [];
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
@@ -39,9 +41,11 @@ export class LineageContainerComponent implements OnInit {
     }
   }
 
-  public loadLineage(): void {
+  private loadLineage(): void {
+
+    //Traversing all workspaces
       for (const workspace of this.workspaces) {
-          const workspaceNode = {
+          const workspaceNode: Node = {
             id: workspace.id,
             name: workspace.name,
             type: NodeType.Workspace,
@@ -49,7 +53,10 @@ export class LineageContainerComponent implements OnInit {
           this.nodes.push(workspaceNode);
 
           for (const dataset of workspace.datasets) {
-            const datasetNode = {
+            dataset.workspaceId = workspace.id;
+            this.datasets.push(dataset);
+ 
+            const datasetNode: Node = {
               id: dataset.id,
               name: dataset.name,
               type: NodeType.Dataset,
@@ -62,7 +69,8 @@ export class LineageContainerComponent implements OnInit {
           }
 
           for (const dataflow of workspace.dataflows) {
-            const dataflowNode = {
+            dataflow.workspaceId= workspace.id;
+            const dataflowNode: Node = {
               id: dataflow.objectId,
               name: dataflow.name,
               type: NodeType.Dataflow,
@@ -75,10 +83,14 @@ export class LineageContainerComponent implements OnInit {
           }
 
           for (const report of workspace.reports) {
-            const reportNode = {
+            report.workspaceId = workspace.id;
+            report.datasetId = report.datasetId;
+            this.reports.push(report);
+            
+            const reportNode: Node = {
               id: report.id,
               name: report.name,
-              type: NodeType.Report,
+              type: NodeType.Report,             
             };
             this.nodes.push(reportNode);
             this.links.push({
@@ -88,7 +100,8 @@ export class LineageContainerComponent implements OnInit {
           }
 
           for (const dashboard of workspace.dashboards) {
-            const dashboardNode = {
+            dashboard.workspaceId = workspace.id;
+            const dashboardNode: Node = {
               id: dashboard.id,
               name: dashboard.displayName,
               type: NodeType.Dashboard,
@@ -101,6 +114,26 @@ export class LineageContainerComponent implements OnInit {
           }
       }
 
+    //Creating cross workspace connections
+    //Reports to datasets
+    for (const report of this.reports) {
+      const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
+      if (reportDatasetNode) {
+        const datasetWorkspaceId = reportDatasetNode.workspaceId;
+        if (report.workspaceId != datasetWorkspaceId) {
+          this.links.push({
+            source: datasetWorkspaceId,
+            target: report.workspaceId
+          });
+        }
+      }
+    }
+
+    //Datasets to dataflows
+
+    //Dataflows to dataflows
+
+
       const gData = {
         nodes: this.nodes,
         links: this.links
@@ -109,7 +142,7 @@ export class LineageContainerComponent implements OnInit {
       const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
           .graphData(gData)
-          .dagMode('td')
+          .dagMode('lr')
           .dagLevelDistance(500)
           .onNodeClick((node: any) => {
             if (node.type === NodeType.Workspace) {

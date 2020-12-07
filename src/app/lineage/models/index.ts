@@ -1,6 +1,7 @@
 export interface Report {
   id: string;
   name: string;
+  workspaceId: string;
   datasetId: string;
 }
 
@@ -13,17 +14,20 @@ export interface Tile {
 export interface Dashboard {
   id: string;
   displayName: string;
+  workspaceId: string;
   tiles: Tile[];
 }
 
 export interface Dataflow {
   objectId: string;
   name: string;
+  workspaceId: string;
 }
 
 export interface Dataset {
   id: string;
   name: string;
+  workspaceId: string;
 }
 
 export interface Workspace {

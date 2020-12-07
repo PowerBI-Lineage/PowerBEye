@@ -9,6 +9,7 @@ export enum NodeType {
 export interface Node {
   id: string;
   type: NodeType;
+  name: string;
 }
 
 export interface Link {
