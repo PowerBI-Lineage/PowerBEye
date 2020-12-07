@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import ForceGraph3D from '3d-force-graph';
 import { Workspace, Report, Dataset } from '../../models';
 import { Link, Node, NodeType } from '../../models/graphModels';
+import SpriteText from 'three-spritetext';
 
 @Component({
   selector: 'lineage-container',
@@ -43,7 +44,7 @@ export class LineageContainerComponent implements OnInit {
 
   private loadLineage(): void {
 
-    //Traversing all workspaces
+    // Traversing all workspaces
       for (const workspace of this.workspaces) {
           const workspaceNode: Node = {
             id: workspace.id,
@@ -55,7 +56,7 @@ export class LineageContainerComponent implements OnInit {
           for (const dataset of workspace.datasets) {
             dataset.workspaceId = workspace.id;
             this.datasets.push(dataset);
- 
+
             const datasetNode: Node = {
               id: dataset.id,
               name: dataset.name,
@@ -108,11 +109,11 @@ export class LineageContainerComponent implements OnInit {
             report.workspaceId = workspace.id;
             report.datasetId = report.datasetId;
             this.reports.push(report);
-            
+
             const reportNode: Node = {
               id: report.id,
               name: report.name,
-              type: NodeType.Report,             
+              type: NodeType.Report,
             };
             this.nodes.push(reportNode);
             this.links.push({
@@ -136,8 +137,8 @@ export class LineageContainerComponent implements OnInit {
           }
       }
 
-    //Creating cross workspace connections between Reports and datasets
-    for (const report of this.reports) {
+    // Creating cross workspace connections between Reports and datasets
+      for (const report of this.reports) {
       const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
       if (reportDatasetNode) {
         const datasetWorkspaceId = reportDatasetNode.workspaceId;
@@ -150,8 +151,8 @@ export class LineageContainerComponent implements OnInit {
       }
     }
 
-    //Need to clear references to workspaces that weren't encountered
-    const validLinks: Link[]=  this.links.filter(link=> this.workspaces.find(workspace => workspace.id === link.source));
+    // Need to clear references to workspaces that weren't encountered
+      const validLinks: Link[]=  this.links.filter(link=> this.workspaces.find(workspace => workspace.id === link.source));
 
       const gData = {
         nodes: this.nodes,
@@ -165,6 +166,17 @@ export class LineageContainerComponent implements OnInit {
             if (node.type === NodeType.Workspace) {
               window.open(`https://powerbi-idog.analysis.windows-int.net/groups/${node.id}/lineage`, '_blank');
             }
+          })
+          .nodeThreeObject((node: any) => {
+            if (node.type !== NodeType.Workspace) {
+              return null;
+            }
+
+            const sprite = new SpriteText(node.name);
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = 'rgba(255,160,0,0.8)';
+            sprite.textHeight = 8;
+            return sprite;
           })
           .nodeColor((node: any) => {
             switch (node.type as NodeType) {
