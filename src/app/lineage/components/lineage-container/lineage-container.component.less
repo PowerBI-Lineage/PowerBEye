@@ -1,9 +1,66 @@
 :host {
-    .container {
-        display: block;
-        height: calc(100%); /* IE9+ and future browsers */
-        height: -moz-calc(100%); /* Firefox */
-        height: -webkit-calc(100%); /* Chrome, Safari */
-        overflow: hidden;
-    }
+  .container {
+      display: flex;
+      height: calc(100%); /* IE9+ and future browsers */
+      height: -moz-calc(100%); /* Firefox */
+      height: -webkit-calc(100%); /* Chrome, Safari */
+      overflow: hidden;
+
+      &.details {
+        margin: 0px 135px;
+      }
+
+      .scanDetails {
+        margin-top: 125px;
+        flex: 1;
+      }
+
+      .title {
+        width: 846px;
+        height: 213px;
+        left: 89px;
+        top: 303px;
+
+        font-family: Segoe UI;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 50px;
+        line-height: 67px;
+
+        color: #FFB775;
+      }
+
+      .subTitle {
+        width: 846px;
+        height: 75px;
+        left: 89px;
+        top: 550px;
+
+        font-family: Segoe UI;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 32px;
+        color: #FFFFFF;
+      }
+
+      .buttonContainer {
+        display: flex;
+        gap: 24px;
+      }
+
+      button {
+        background-color: #1F233E;
+        border-radius: 40px;
+        width: 216px;
+        height: 75px;
+        font-family: Segoe UI;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 32px;
+        line-height: 43px;
+        color: #FFFFFF;
+        border: 2px solid #FFB775;
+      }
+  }
 }

@@ -12,6 +12,7 @@ import * as THREE from 'three';
 })
 export class LineageContainerComponent implements OnInit {
 
+  public shouldShowGraph = false;
   public workspaces: Workspace[];
   public nodes: Node[] = [];
   public links: Link[] = [];
@@ -25,6 +26,10 @@ export class LineageContainerComponent implements OnInit {
   ngOnInit(): void {
 
   }
+
+  public onAddFile(): void {
+    (this.filesInput.nativeElement as HTMLInputElement).click();
+}
 
   public onFileAdded(): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
@@ -271,5 +276,7 @@ export class LineageContainerComponent implements OnInit {
           .nodeColor((node: any) => {
             return this.getNodeColor(node.type as NodeType);
           });
+
+      this.shouldShowGraph = true;
   }
 }

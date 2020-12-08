@@ -1,4 +1,12 @@
-<section class="container">
-    <input type="file" #filesInput (change)="onFileAdded()" multiple>
-    <div id="3d-graph"></div>
+<section class="container" [ngClass]="{'details': !shouldShowGraph}">
+  <div class="scanDetails" *ngIf="!shouldShowGraph">
+    <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
+    <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
+    <div class="buttonContainer">
+      <button (click)="onAddFile()">Upload File</button>
+    </div>
+  </div>
+  <img src="assets/MaskGroup.png" width="734" height="943" *ngIf="!shouldShowGraph">
+  <div id="3d-graph"></div>
 </section>
+<input hidden type="file" #filesInput (change)="onFileAdded()" multiple>
