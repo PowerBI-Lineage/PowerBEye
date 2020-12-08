@@ -3,6 +3,7 @@ import ForceGraph3D from '3d-force-graph';
 import { Workspace, Report, Dataset } from '../../models';
 import { Link, Node, NodeType } from '../../models/graphModels';
 import SpriteText from 'three-spritetext';
+import * as THREE from 'three';
 
 @Component({
   selector: 'lineage-container',
@@ -60,6 +61,75 @@ export class LineageContainerComponent implements OnInit {
       textSize = 30;
     }
     return textSize;
+  }
+
+  private getNodeColor(nodeType: NodeType) : string {
+    /*
+    Report (18, 35, 158, 1)
+    Dashboard (25, 114, 120, 1)
+    Dataset (201, 79, 15, 1)
+    Dataflow (153, 112, 10, 1)
+    App (70, 104, 197, 1)
+    Workspace (182, 0, 100, 1)
+    Workbook (33, 115, 70, 1)
+    Data source (116, 78, 194, 1)
+    */
+    switch (nodeType) {
+      case NodeType.Workspace: {
+        return 'rgb(255,0,0,1)';
+      }
+      case NodeType.Dashboard: {
+        return 'rgba(25, 114, 120, 1)';
+      }
+      case NodeType.Report: {
+        return 'rgba(18, 35, 158, 1)';
+      }
+      case NodeType.Dataset: {
+        return 'rgba(201, 79, 15, 1)';
+      }
+      case NodeType.Dataflow: {
+        return 'rgba(153, 112, 10, 1)';
+      }
+      default: {
+        return 'rgb(0,0,0,0)';
+      }
+    }
+  }
+
+  private getNodeTypeImage(nodeType: NodeType) : THREE.Mesh {
+    let texture = null;
+
+    switch (nodeType) {
+      case NodeType.Dashboard: {
+        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dashboard.png`);
+        break;
+      }
+      case NodeType.Report: {
+        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/report.png`);
+        break;
+      }
+      case NodeType.Dataset: {
+        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dataset.png`);
+        break;
+      }
+      case NodeType.Dataflow: {
+        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dataflow.png`);
+        break;
+      }
+      default: {
+        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/data source.png`);
+        break;
+      }
+    }
+
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(4),
+      new THREE.MeshBasicMaterial({
+        map: texture
+      })
+    );
+
+    return sphere;
   }
 
   private loadLineage(): void {
@@ -189,36 +259,17 @@ export class LineageContainerComponent implements OnInit {
           })
           .nodeThreeObject((node: any) => {
             if (node.type !== NodeType.Workspace) {
-              return null;
+              return this.getNodeTypeImage(node.type as NodeType);
             }
 
             const sprite = new SpriteText(node.name);
             sprite.material.depthWrite = false; // make sprite background transparent
             sprite.color = 'rgba(255,255,255,0.8)';
-            sprite.textHeight = this.getWorkspaceTextSize(node.id);
+            sprite.textHeight = 15;
             return sprite;
           })
           .nodeColor((node: any) => {
-            switch (node.type as NodeType) {
-              case NodeType.Workspace: {
-                return 'rgb(255,0,0,1)';
-              }
-              case NodeType.Dashboard: {
-                return 'rgba(255,160,0,0.8)';
-              }
-              case NodeType.Report: {
-                return 'rgba(0,255,255,0.6)';
-              }
-              case NodeType.Dataset: {
-                return 'rgba(255,100,0,0.8)';
-              }
-              case NodeType.Dataflow: {
-                return 'rgba(125,160,0,0.8)';
-              }
-              default: {
-                return 'rgb(0,0,0,0)';
-              }
-            }
+            return this.getNodeColor(node.type as NodeType);
           });
   }
 }
