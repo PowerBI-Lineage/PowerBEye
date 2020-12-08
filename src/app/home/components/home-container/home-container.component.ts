@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ScanInfo } from '../../models';
 import { HomeProxy } from '../../services/home-proxy.service';
+import { Router } from '@angular/router';
 
 declare var saveAs: any;
 
@@ -13,28 +14,26 @@ export class HomeContainerComponent implements OnInit {
 
   public scanInfo: ScanInfo;
 
-  constructor(private proxy: HomeProxy) { }
+  constructor(private proxy: HomeProxy,
+              private router: Router) { }
 
   ngOnInit(): void {
   }
 
-  public startScan(): void {
+  public async startScan(): Promise<void> {
     // tslint:disable-next-line: deprecation
     // tslint:disable-next-line: no-shadowed-variable
-    const result = this.proxy.getModifedWorkspaces().subscribe(result => {
-      console.log(result);
-      const workspacesIds = result.map(workspace => workspace.Id);
-      this.proxy.getWorkspacesLineage(workspacesIds).subscribe(lineageResult => {
-        this.scanInfo = lineageResult;
-      });
-    });
-  }
+    const resultObserable = await this.proxy.getModifedWorkspaces();
+    const result = await resultObserable.toPromise();
 
-  public getStatus(): void {
-    this.proxy.getWorkspacesScanStatus(this.scanInfo.id).subscribe(result => {
-      console.log(result);
-      this.scanInfo = result;
-    });
+    const workspacesIds = result.map(workspace => workspace.Id);
+    this.scanInfo = await this.proxy.getWorkspacesLineage(workspacesIds).toPromise();
+
+    while (this.scanInfo.status !== 'Succeeded') {
+      this.scanInfo = await this.proxy.getWorkspacesScanStatus(this.scanInfo.id).toPromise();
+    }
+
+    this.downloadFiles();
   }
 
   public downloadFiles(): void {
@@ -46,6 +45,10 @@ export class HomeContainerComponent implements OnInit {
       console.log(result);
       this.saveAsFile(JSON.stringify(result), 'workspace.JSON', 'text/plain;charset=utf-8');
     });
+  }
+
+  public handleLineageNavigation(): void {
+    this.router.navigate(['/lineage'], { queryParamsHandling: 'preserve' });
   }
 
   private saveAsFile(t: any, f: any, m: any): void {

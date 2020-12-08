@@ -1,6 +1,11 @@
 <section class="container">
-    <p>Scan status: {{scanInfo?.status}}</p>
-    <button (click)="startScan()">Start scan</button>
-    <button (click)="getStatus()">Status</button>
-    <button (click)="downloadFiles()">download</button>
+    <div class="scanDetails">
+      <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
+      <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
+      <div class="buttonContainer">
+        <button (click)="startScan()">Start Scan</button>
+        <button (click)="handleLineageNavigation()">View Graph</button>
+      </div>
+    </div>
+    <img src="./../../../../assets/MaskGroup.png" width="734" height="943">
 </section>

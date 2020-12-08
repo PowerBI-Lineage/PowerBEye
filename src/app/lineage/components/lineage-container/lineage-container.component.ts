@@ -232,7 +232,7 @@ export class LineageContainerComponent implements OnInit {
       const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
       if (reportDatasetNode) {
         const datasetWorkspaceId = reportDatasetNode.workspaceId;
-        if (report.workspaceId != datasetWorkspaceId) {
+        if (report.workspaceId !== datasetWorkspaceId) {
           this.links.push({
             source: datasetWorkspaceId,
             target: report.workspaceId
