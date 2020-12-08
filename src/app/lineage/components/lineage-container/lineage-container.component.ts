@@ -101,23 +101,23 @@ export class LineageContainerComponent implements OnInit {
 
     switch (nodeType) {
       case NodeType.Dashboard: {
-        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dashboard.png`);
+        texture = THREE.ImageUtils.loadTexture(`assets/dashboard.png`);
         break;
       }
       case NodeType.Report: {
-        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/report.png`);
+        texture = THREE.ImageUtils.loadTexture(`assets/report.png`);
         break;
       }
       case NodeType.Dataset: {
-        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dataset.png`);
+        texture = THREE.ImageUtils.loadTexture(`assets/dataset.png`);
         break;
       }
       case NodeType.Dataflow: {
-        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/dataflow.png`);
+        texture = THREE.ImageUtils.loadTexture(`assets/dataflow.png`);
         break;
       }
       default: {
-        texture = THREE.ImageUtils.loadTexture(`./../../../../assets/data source.png`);
+        texture = THREE.ImageUtils.loadTexture(`assets/data source.png`);
         break;
       }
     }
