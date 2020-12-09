@@ -257,6 +257,7 @@ export class LineageContainerComponent implements OnInit {
       const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
           .graphData(gData)
+          .enableNodeDrag(false)
           .onNodeClick((node: any) => {
             if (node.type === NodeType.Workspace) {
               window.open(`https://powerbi-idog.analysis.windows-int.net/groups/${node.id}/lineage`, '_blank');
