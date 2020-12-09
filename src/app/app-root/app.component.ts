@@ -15,8 +15,4 @@ export class AppComponent {
   public handleHomeNavigation(): void {
     this.router.navigate(['/home'], { queryParamsHandling: 'preserve' });
   }
-
-  public handleLineageNavigation(): void {
-    this.router.navigate(['/lineage'], { queryParamsHandling: 'preserve' });
-  }
 }
