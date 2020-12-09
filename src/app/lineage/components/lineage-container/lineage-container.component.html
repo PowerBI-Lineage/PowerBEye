@@ -3,7 +3,9 @@
     <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
     <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
     <div class="buttonContainer">
-      <button (click)="onAddFile()">Upload File</button>
+      <div class="button" (click)="onAddFile()">
+        <p>Upload File</p>
+      </div>
     </div>
   </div>
   <img src="assets/MaskGroup.png" width="734" height="943" *ngIf="!shouldShowGraph">

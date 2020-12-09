@@ -3,8 +3,12 @@
       <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
       <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
       <div class="buttonContainer">
-        <button (click)="startScan()">Start Scan</button>
-        <button (click)="handleLineageNavigation()">View Graph</button>
+        <div class="button" (click)="startScan()">
+          <p>Start Scan</p>
+        </div>
+        <div class="button" (click)="handleLineageNavigation()">
+          <p>View Graph</p>
+        </div>
       </div>
     </div>
     <img src="assets/MaskGroup.png" width="734" height="943">
