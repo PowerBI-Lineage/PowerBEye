@@ -13,6 +13,6 @@ export class AppComponent {
   }
 
   public handleHomeNavigation(): void {
-    this.router.navigate(['/home'], { queryParamsHandling: 'preserve' });
+    location.reload();
   }
 }
