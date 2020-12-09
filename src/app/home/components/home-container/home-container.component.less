@@ -7,17 +7,23 @@
         overflow: hidden;
 
         &.details {
-          margin: 0px 135px;
+          margin: 0px 120px;
         }
 
         .scanDetails {
+          display: flex;
+          flex-direction: column;
           margin-top: 125px;
           flex: 1;
         }
 
+        .imageGraph {
+          margin-top: 40px;
+        }
+
         .title {
-          width: 846px;
-          height: 213px;
+          width: 1050px;
+          height: 140px;
           left: 89px;
           top: 303px;
 
@@ -42,6 +48,7 @@
           font-size: 24px;
           line-height: 32px;
           color: #FFFFFF;
+          margin-bottom: 60px;
         }
 
         .buttonContainer {
@@ -49,26 +56,34 @@
           gap: 24px;
         }
 
-        .button {
+        .scanButton {
+          width: 300px;
+          height: 100px;
+        }
+
+        .visButton {
+          width: 400px;
+          height: 100px;
+        }
+
+        .visButton, .scanButton {
           cursor: pointer;
           background-color: #1F233E;
-          border-radius: 40px;
-          width: 232px;
-          height: 75px;
+          border-radius: 60px;
           font-family: Segoe UI;
           font-style: normal;
           font-weight: normal;
-          font-size: 32px;
-          line-height: 43px;
+          font-size: 40px;
+          line-height: 10px;
           color: #FFFFFF;
           border: 2px solid #FFB775;
 
           p {
-            margin: 14px 34px;
+            text-align: center;
           }
         }
 
-        .button:hover {
+        .visButton:hover, .scanButton:hover {
           border-color: #FFFFFF;
         }
     }

@@ -1,17 +1,17 @@
 <section class="container" [ngClass]="{'details': !shouldShowGraph}">
     <div class="scanDetails"  *ngIf="!shouldShowGraph">
-      <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
-      <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
+      <p class="title">Use PowerB Eye to generate a 3D visualization of all the content and workspaces in your tenant and the connections between them.</p>
+      <p class="subTitle">Start by scanning the tenant. Then, select 'Show visualization' to open the file and display the 3D visual.</p>
       <div class="buttonContainer">
-        <div class="button" (click)="startScan()">
-          <p>Start Scan</p>
+        <div class="scanButton" (click)="startScan()">
+          <p>Scan tenant</p>
         </div>
-        <div class="button" (click)="onAddFile()">
-          <p>View Graph</p>
+        <div class="visButton" (click)="onAddFile()">
+          <p>Show visualization</p>
         </div>
       </div>
     </div>
-    <img src="assets/MaskGroup.png" width="734" height="943"  *ngIf="!shouldShowGraph">
+    <img class="imageGraph" src="assets/MaskGroup.png" *ngIf="!shouldShowGraph">
     <div id="3d-graph"></div>
 </section>
 <input hidden type="file" #filesInput (change)="onFileAdded()" multiple>

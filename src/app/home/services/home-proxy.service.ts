@@ -32,10 +32,10 @@ export class HomeProxy {
       return this.httpService.get(req.url, req);
     }
 
-    public getWorkspacesLineage(workspaceArray: string[]): Observable<any> {
+    public getWorkspacesInfo(workspaceArray: string[]): Observable<any> {
       const req = {
         method: 'POST',
-        url: 'https://api.powerbi.com/v1.0/myorg/admin/workspaces/getInfo?lineage=true',
+        url: 'https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/getInfo?lineage=true',
         headers: {
           authorization: ''
         },
@@ -47,7 +47,7 @@ export class HomeProxy {
     public getWorkspacesScanStatus(scanId: string): Observable<any> {
       const req = {
         method: 'GET',
-        url: `https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanStatus/${scanId}`,
+        url: `https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/scanStatus/${scanId}`,
         headers: {
           'Content-Type': 'application/json',
           authorization: ''
@@ -60,7 +60,7 @@ export class HomeProxy {
     public getWorkspacesScanResult(scanId: string): Observable<any> {
       const req = {
         method: 'GET',
-        url: `https://api.powerbi.com/v1.0/myorg/admin/workspaces/scanResult/${scanId}`,
+        url: `https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/scanResult/${scanId}`,
         headers: {
           'Content-Type': 'application/json',
           authorization: ''

@@ -37,7 +37,7 @@ export class HomeContainerComponent {
     const result = await resultObserable.toPromise();
 
     const workspacesIds = result.map(workspace => workspace.Id);
-    this.scanInfo = await this.proxy.getWorkspacesLineage(workspacesIds).toPromise();
+    this.scanInfo = await this.proxy.getWorkspacesInfo(workspacesIds).toPromise();
 
     while (this.scanInfo.status !== 'Succeeded') {
       this.scanInfo = await this.proxy.getWorkspacesScanStatus(this.scanInfo.id).toPromise();
@@ -52,8 +52,7 @@ export class HomeContainerComponent {
     }
 
     this.proxy.getWorkspacesScanResult(this.scanInfo.id).subscribe(result => {
-      console.log(result);
-      this.saveAsFile(JSON.stringify(result), 'workspace.JSON', 'text/plain;charset=utf-8');
+      this.saveAsFile(JSON.stringify(result), 'scanResult.json', 'text/plain;charset=utf-8');
     });
   }
 
@@ -66,7 +65,6 @@ export class HomeContainerComponent {
 
     for (let i = 0 ; i < files.length ; i++) {
       const file = files [i];
-      console.log(file);
       const reader = new FileReader();
 
       reader.addEventListener('load', (event) => {
@@ -196,7 +194,7 @@ export class HomeContainerComponent {
 
             if (dataset.upstreamDataflows) {
               for (const upstreamDataflow of dataset.upstreamDataflows) {
-                if (upstreamDataflow.groupId != dataset.workspaceId) {
+                if (upstreamDataflow.groupId !== dataset.workspaceId) {
                   this.links.push({
                     source: upstreamDataflow.groupId,
                     target: dataset.workspaceId,

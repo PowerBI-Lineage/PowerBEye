@@ -1,10 +1,11 @@
-<mat-toolbar color="primary">
-    <span>
-      <button mat-icon-button>
-        <mat-icon>menu</mat-icon>
-      </button>
+<mat-toolbar class="toolBar" color="primary">
+    <span (click)="handleHomeNavigation()">
+      <img class="imageGraph" src="assets/logo.png">
     </span>
-    <span class="powerbeye" (click)="handleHomeNavigation()">PowerBEye</span>
+    <div class="welcomeContainer">
+      <span class="welcome">Welcome, Elliot</span>
+      <img class="avatar" src="assets/avatar.png">
+    </div>
 </mat-toolbar>
 <section class="containerRoute">
   <router-outlet></router-outlet>
