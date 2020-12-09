@@ -6,6 +6,11 @@ export enum NodeType {
   Dataflow
 }
 
+export enum LinkType {
+  CrossWorkspace,
+  Contains,
+}
+
 export interface Node {
   id: string;
   type: NodeType;
@@ -15,5 +20,6 @@ export interface Node {
 export interface Link {
   source: string;
   target: string;
+  type: LinkType;
 }
 

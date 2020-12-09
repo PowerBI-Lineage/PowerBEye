@@ -4,7 +4,7 @@ import { HomeProxy } from '../../services/home-proxy.service';
 import { Router } from '@angular/router';
 import ForceGraph3D from '3d-force-graph';
 import { Workspace, Report, Dataset } from '../../models/dataModel';
-import { Link, Node, NodeType } from '../../models/graphModels';
+import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import SpriteText from 'three-spritetext';
 import * as THREE from 'three';
 
@@ -190,7 +190,8 @@ export class HomeContainerComponent {
             this.nodes.push(datasetNode);
             this.links.push({
               source: workspaceNode.id,
-              target: datasetNode.id
+              target: datasetNode.id,
+              type: LinkType.Contains,
             });
 
             if (dataset.upstreamDataflows) {
@@ -198,7 +199,8 @@ export class HomeContainerComponent {
                 if (upstreamDataflow.groupId != dataset.workspaceId) {
                   this.links.push({
                     source: upstreamDataflow.groupId,
-                    target: dataset.workspaceId
+                    target: dataset.workspaceId,
+                    type: LinkType.CrossWorkspace,
                   });
                 }
               }
@@ -215,7 +217,8 @@ export class HomeContainerComponent {
             this.nodes.push(dataflowNode);
             this.links.push({
               source: workspaceNode.id,
-              target: dataflowNode.id
+              target: dataflowNode.id,
+              type: LinkType.Contains
             });
 
             if (dataflow.upstreamDataflows) {
@@ -223,7 +226,8 @@ export class HomeContainerComponent {
                 if (upstreamDataflow.groupId != dataflow.workspaceId) {
                   this.links.push({
                     source: upstreamDataflow.groupId,
-                    target: dataflow.workspaceId
+                    target: dataflow.workspaceId,
+                    type: LinkType.CrossWorkspace,
                   });
                 }
               }
@@ -243,7 +247,8 @@ export class HomeContainerComponent {
             this.nodes.push(reportNode);
             this.links.push({
               source: workspaceNode.id,
-              target: reportNode.id
+              target: reportNode.id,
+              type: LinkType.Contains
             });
           }
 
@@ -257,7 +262,8 @@ export class HomeContainerComponent {
             this.nodes.push(dashboardNode);
             this.links.push({
               source: workspaceNode.id,
-              target: dashboardNode.id
+              target: dashboardNode.id,
+              type: LinkType.Contains
             });
           }
       }
@@ -270,7 +276,8 @@ export class HomeContainerComponent {
         if (report.workspaceId !== datasetWorkspaceId) {
           this.links.push({
             source: datasetWorkspaceId,
-            target: report.workspaceId
+            target: report.workspaceId,
+            type: LinkType.CrossWorkspace,
           });
         }
       }
@@ -293,6 +300,14 @@ export class HomeContainerComponent {
               window.open(`https://powerbi-idog.analysis.windows-int.net/groups/${node.id}/lineage`, '_blank');
             }
           })
+          .linkDirectionalParticles((link: any) =>{
+            if (link.type === LinkType.CrossWorkspace) {
+              return 10;
+            }
+          })
+          .linkDirectionalParticleSpeed(0.005)
+          .linkDirectionalParticleWidth(3)
+          .linkDirectionalParticleColor('rgba(18, 35, 158, 1)')
           .nodeThreeObject((node: any) => {
             if (node.type !== NodeType.Workspace) {
               return this.getNodeTypeImage(node.type as NodeType);
