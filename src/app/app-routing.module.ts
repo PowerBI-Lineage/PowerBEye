@@ -10,10 +10,6 @@ const routes: Routes = [
         loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
       },
       {
-        path: 'lineage',
-        loadChildren: () => import('./lineage/lineage.module').then(m => m.LineageModule)
-      },
-      {
         path: '**',
         redirectTo: 'home',
       },

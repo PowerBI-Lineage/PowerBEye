@@ -6,10 +6,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app-root/app.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule} from '@angular/material/button';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { MsalModule, MsalInterceptor } from '@azure/msal-angular';
+import { HttpClientModule } from '@angular/common/http';
+import { MsalModule } from '@azure/msal-angular';
 
 @NgModule({
   declarations: [
@@ -21,7 +20,6 @@ import { MsalModule, MsalInterceptor } from '@azure/msal-angular';
     AppRoutingModule,
     MatToolbarModule,
     MatIconModule,
-    MatMenuModule,
     MatButtonModule,
     HttpClientModule,
     MsalModule.forRoot({

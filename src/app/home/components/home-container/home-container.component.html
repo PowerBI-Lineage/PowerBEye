@@ -1,15 +1,17 @@
-<section class="container">
-    <div class="scanDetails">
+<section class="container" [ngClass]="{'details': !shouldShowGraph}">
+    <div class="scanDetails"  *ngIf="!shouldShowGraph">
       <p class="title">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
       <p class="subTitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dolor tempus, cursus sed ut arcu vitae nisi</p>
       <div class="buttonContainer">
         <div class="button" (click)="startScan()">
           <p>Start Scan</p>
         </div>
-        <div class="button" (click)="handleLineageNavigation()">
+        <div class="button" (click)="onAddFile()">
           <p>View Graph</p>
         </div>
       </div>
     </div>
-    <img src="assets/MaskGroup.png" width="734" height="943">
+    <img src="assets/MaskGroup.png" width="734" height="943"  *ngIf="!shouldShowGraph">
+    <div id="3d-graph"></div>
 </section>
+<input hidden type="file" #filesInput (change)="onFileAdded()" multiple>
