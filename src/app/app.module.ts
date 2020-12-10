@@ -24,7 +24,7 @@ import { MsalModule } from '@azure/msal-angular';
     HttpClientModule,
     MsalModule.forRoot({
       auth: {
-        clientId: '287b1ab5-492e-4786-8337-bba1b3f6631d', // This is your client ID,
+        clientId: '', // This is your client ID,
         // redirectUri: 'http://localhost:4200/home'
       },
       // cache: {
