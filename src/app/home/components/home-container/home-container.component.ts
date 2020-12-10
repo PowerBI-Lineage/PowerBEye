@@ -37,23 +37,40 @@ export class HomeContainerComponent {
     const result = await resultObserable.toPromise();
 
     const workspacesIds = result.map(workspace => workspace.Id);
-    this.scanInfo = await this.proxy.getWorkspacesLineage(workspacesIds).toPromise();
+    var maxSize = workspacesIds.length;
+    var index = 0;
 
-    while (this.scanInfo.status !== 'Succeeded') {
-      this.scanInfo = await this.proxy.getWorkspacesScanStatus(this.scanInfo.id).toPromise();
+    while (index < maxSize)
+    {
+      await this.getChunk(workspacesIds.slice(index, index+100));
+      index += 100;
     }
-
-    this.downloadFiles();
   }
 
-  public downloadFiles(): void {
-    if (this.scanInfo.status !== 'Succeeded') {
+  public async getChunk(workspaceIds: string[])
+  {
+    var scanInfo = await this.proxy.getWorkspacesLineage(workspaceIds).toPromise();
+
+    while (scanInfo.status !== 'Succeeded') {
+      await this.sleep(1000);
+      scanInfo = await this.proxy.getWorkspacesScanStatus(scanInfo.id).toPromise();
+    }
+
+    this.downloadFiles(scanInfo);
+  }
+
+  public sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  public downloadFiles(scanInfo): void {
+    if (scanInfo.status !== 'Succeeded') {
       return;
     }
 
-    this.proxy.getWorkspacesScanResult(this.scanInfo.id).subscribe(result => {
+    this.proxy.getWorkspacesScanResult(scanInfo.id).subscribe(result => {
       console.log(result);
-      this.saveAsFile(JSON.stringify(result), 'workspace.JSON', 'text/plain;charset=utf-8');
+      this.saveAsFile(JSON.stringify(result), 'workspaces' + scanInfo.id + '.JSON', 'text/plain;charset=utf-8');
     });
   }
 
