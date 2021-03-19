@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ScanInfo } from '../../models';
 import { HomeProxy } from '../../services/home-proxy.service';
-import { Router } from '@angular/router';
 import ForceGraph3D from '3d-force-graph';
 import { Workspace, Report, Dataset } from '../../models/dataModel';
 import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
@@ -17,7 +16,6 @@ declare var saveAs: any;
 })
 export class HomeContainerComponent {
 
-  public scanInfo: ScanInfo;
   public shouldShowGraph = false;
   public workspaces: Workspace[];
   public nodes: Node[] = [];
@@ -27,30 +25,26 @@ export class HomeContainerComponent {
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor(private proxy: HomeProxy,
-              private router: Router) { }
+  constructor(private proxy: HomeProxy) { }
 
   public async startScan(): Promise<void> {
-    // tslint:disable-next-line: deprecation
-    // tslint:disable-next-line: no-shadowed-variable
     const resultObserable = await this.proxy.getModifedWorkspaces();
     const result = await resultObserable.toPromise();
 
     const workspacesIds = result.map(workspace => workspace.Id);
-    this.scanInfo = await this.proxy.getWorkspacesInfo(workspacesIds).toPromise();
-    var maxSize = workspacesIds.length;
-    var index = 0;
+    let maxSize = workspacesIds.length;
+    let index = 0;
 
     while (index < maxSize)
     {
-      await this.getChunk(workspacesIds.slice(index, index+100));
+      await this.getWorkspacesScanFiles(workspacesIds.slice(index, index+100));
       index += 100;
     }
   }
 
-  public async getChunk(workspaceIds: string[])
+  public async getWorkspacesScanFiles(workspaceIds: string[])
   {
-    var scanInfo = await this.proxy.getWorkspacesLineage(workspaceIds).toPromise();
+    let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
       await this.sleep(1000);
@@ -70,7 +64,6 @@ export class HomeContainerComponent {
     }
 
     this.proxy.getWorkspacesScanResult(scanInfo.id).subscribe(result => {
-      this.saveAsFile(JSON.stringify(result), 'scanResult.json', 'text/plain;charset=utf-8');
       this.saveAsFile(JSON.stringify(result), 'workspaces' + scanInfo.id + '.JSON', 'text/plain;charset=utf-8');
     });
   }
@@ -95,37 +88,16 @@ export class HomeContainerComponent {
     }
   }
 
-  private getWorkspaceTextSize(id: string): number {
-    const nodeWorkspace = this.workspaces.find(ws => ws.id === id);
-    const artifactCount = nodeWorkspace.dashboards.length
-    + nodeWorkspace.reports.length
-    + nodeWorkspace.datasets.length
-    + nodeWorkspace.dataflows.length;
-
-    let textSize = 8;
-    if (artifactCount > 10 && artifactCount <= 50) {
-      textSize = 16;
+  private saveAsFile(t: any, f: any, m: any): void {
+    try {
+        const b = new Blob([t],{type: m});
+        saveAs(b, f);
+    } catch (e) {
+        window.open('data:' + m + ',' + encodeURIComponent(t), '_blank', '');
     }
-    if (artifactCount > 50 && artifactCount <= 100) {
-      textSize = 22;
-    }
-    if (artifactCount > 100) {
-      textSize = 30;
-    }
-    return textSize;
-  }
+}
 
   private getNodeColor(nodeType: NodeType) : string {
-    /*
-    Report (18, 35, 158, 1)
-    Dashboard (25, 114, 120, 1)
-    Dataset (201, 79, 15, 1)
-    Dataflow (153, 112, 10, 1)
-    App (70, 104, 197, 1)
-    Workspace (182, 0, 100, 1)
-    Workbook (33, 115, 70, 1)
-    Data source (116, 78, 194, 1)
-    */
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -185,7 +157,6 @@ export class HomeContainerComponent {
   }
 
   private loadLineage(): void {
-
     // Traversing all workspaces
       for (const workspace of this.workspaces) {
           const workspaceNode: Node = {
@@ -343,12 +314,4 @@ export class HomeContainerComponent {
       this.shouldShowGraph = true;
     }
 
-  private saveAsFile(t: any, f: any, m: any): void {
-      try {
-          const b = new Blob([t],{type: m});
-          saveAs(b, f);
-      } catch (e) {
-          window.open('data:' + m + ',' + encodeURIComponent(t), '_blank', '');
-      }
-  }
 }

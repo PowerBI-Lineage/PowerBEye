@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "docs": "ng build --prod --output-path=docs --base-href=https://powerbi-a-team.github.io/PowerBEye/ --deploy-url=https://powerbi-a-team.github.io/PowerBEye/",
+    "docs": "ng build --prod --output-path=docs --base-href=https://powerbi-lineage.github.io/PowerBEye/ --deploy-url=https://powerbi-lineage.github.io/PowerBEye/",
     "postinstall": "ngcc"
   },
   "private": true,
