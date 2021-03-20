@@ -16,6 +16,7 @@ declare var saveAs: any;
 })
 export class HomeContainerComponent {
 
+  public isScanTenantInProgress: boolean = false;
   public shouldShowGraph = false;
   public nodes: Node[] = [];
   public links: Link[] = [];
@@ -27,17 +28,23 @@ export class HomeContainerComponent {
   constructor(private proxy: HomeProxy) { }
 
   public async startScan(): Promise<void> {
-    const resultObserable = await this.proxy.getModifedWorkspaces();
-    const result = await resultObserable.toPromise();
-
-    const workspacesIds = result.map(workspace => workspace.Id);
-    let maxSize = workspacesIds.length;
-    let index = 0;
-
-    while (index < maxSize)
-    {
-      await this.getWorkspacesScanFiles(workspacesIds.slice(index, index+100));
-      index += 100;
+    this.isScanTenantInProgress = true;
+    try {
+      const resultObserable = await this.proxy.getModifedWorkspaces();
+      const result = await resultObserable.toPromise();
+  
+      const workspacesIds = result.map(workspace => workspace.Id);
+      let maxSize = workspacesIds.length;
+      let index = 0;
+  
+      while (index < maxSize)
+      {
+        await this.getWorkspacesScanFiles(workspacesIds.slice(index, index+100));
+        index += 100;
+      }
+      this.isScanTenantInProgress = false;
+    } catch (e) {
+      this.isScanTenantInProgress = false;
     }
   }
 
@@ -68,6 +75,10 @@ export class HomeContainerComponent {
   }
 
   public onAddFile(): void {
+    if (this.isScanTenantInProgress) {
+      return;
+    }
+
     (this.filesInput.nativeElement as HTMLInputElement).click();
 }
 
