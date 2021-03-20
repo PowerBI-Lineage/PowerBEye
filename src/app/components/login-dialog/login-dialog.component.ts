@@ -13,7 +13,6 @@ export class LoginDialogComponent {
   constructor(private authService: AuthService) {}
 
   public onClick(): void {
-    this.authService.token = this.token;
+    this.authService.setToken(this.token);
   }
-
 }
