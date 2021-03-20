@@ -17,7 +17,6 @@ declare var saveAs: any;
 export class HomeContainerComponent {
 
   public shouldShowGraph = false;
-  public workspaces: Workspace[];
   public nodes: Node[] = [];
   public links: Link[] = [];
   public reports: Report[] = [];
@@ -80,8 +79,8 @@ export class HomeContainerComponent {
       const reader = new FileReader();
 
       reader.addEventListener('load', (event) => {
-        this.workspaces = JSON.parse(event.target.result as string).workspaces;
-        this.loadLineage();
+        const workspaces = JSON.parse(event.target.result as string).workspaces;
+        this.loadLineage(workspaces);
       });
 
       reader.readAsText(file);
@@ -156,9 +155,9 @@ export class HomeContainerComponent {
     return sphere;
   }
 
-  private loadLineage(): void {
+  private loadLineage(workspaces): void {
     // Traversing all workspaces
-      for (const workspace of this.workspaces) {
+      for (const workspace of workspaces) {
           const workspaceNode: Node = {
             id: workspace.id,
             name: workspace.name,
@@ -272,7 +271,7 @@ export class HomeContainerComponent {
     }
 
     // Need to clear references to workspaces that weren't encountered
-      const validLinks: Link[]=  this.links.filter(link=> this.workspaces.find(workspace => workspace.id === link.source));
+      const validLinks: Link[]=  this.links.filter(link=> workspaces.find(workspace => workspace.id === link.source));
 
       const gData = {
         nodes: this.nodes,

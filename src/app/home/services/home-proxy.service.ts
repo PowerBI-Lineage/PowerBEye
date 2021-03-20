@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Injectable()
 export class HomeProxy {
-  constructor(private httpService: HttpClient) { }
+  constructor(private httpService: HttpClient,
+              private authService: AuthService) { }
 
     public async getModifedWorkspaces(): Promise<Observable<any>> {
       const req = {
@@ -12,7 +14,7 @@ export class HomeProxy {
         url: 'https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/modified',
         headers: {
           'Content-Type': 'application/json',
-          authorization: ''
+          authorization: 'Bearer ' + this.authService.token,
         },
       };
 
@@ -24,7 +26,7 @@ export class HomeProxy {
         method: 'POST',
         url: 'https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/getInfo?lineage=true',
         headers: {
-          authorization: ''
+          authorization: 'Bearer ' + this.authService.token,
         },
       };
 
@@ -37,7 +39,7 @@ export class HomeProxy {
         url: `https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/scanStatus/${scanId}`,
         headers: {
           'Content-Type': 'application/json',
-          authorization: ''
+          authorization: 'Bearer ' + this.authService.token,
         },
       };
 
@@ -50,7 +52,7 @@ export class HomeProxy {
         url: `https://wabi-staging-us-east-redirect.analysis.windows.net/v1.0/myorg/admin/workspaces/scanResult/${scanId}`,
         headers: {
           'Content-Type': 'application/json',
-          authorization: ''
+          authorization: 'Bearer ' + this.authService.token,
         },
       };
 

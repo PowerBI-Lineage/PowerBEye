@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'login-dialog',
@@ -9,10 +10,10 @@ export class LoginDialogComponent {
 
   public token: string;
 
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   public onClick(): void {
-    console.log(this.token);
+    this.authService.token = this.token;
   }
 
 }
