@@ -1,12 +1,10 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { ScanInfo } from '../../models';
 import { HomeProxy } from '../../services/home-proxy.service';
 import ForceGraph3D from '3d-force-graph';
-import { Workspace, Report, Dataset } from '../../models/dataModel';
+import { Report, Dataset } from '../../models/dataModel';
 import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
-import SpriteText from 'three-spritetext';
 import * as THREE from 'three';
-
+import {CSS3DRenderer, CSS3DObject} from 'three-css3drenderer';
 declare var saveAs: any;
 
 @Component({
@@ -157,7 +155,7 @@ export class HomeContainerComponent {
     }
 
     const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(4),
+      new THREE.BoxGeometry( 10, 10, 10 ),
       new THREE.MeshBasicMaterial({
         map: texture
       })
@@ -289,7 +287,10 @@ export class HomeContainerComponent {
         links: validLinks
       };
 
-      const Graph = ForceGraph3D()
+      const Graph = ForceGraph3D({
+        controlType: "orbit",
+        extraRenderers: [new CSS3DRenderer()]
+      })
         (document.getElementById('3d-graph'))
           .graphData(gData)
           .enableNodeDrag(false)
@@ -310,12 +311,12 @@ export class HomeContainerComponent {
             if (node.type !== NodeType.Workspace) {
               return this.getNodeTypeImage(node.type as NodeType);
             }
-
-            const sprite = new SpriteText(node.name);
-            sprite.material.depthWrite = false; // make sprite background transparent
-            sprite.color = 'rgba(255,255,255,0.8)';
-            sprite.textHeight = 15;
-            return sprite;
+        
+            const nodeEl = document.createElement('div');
+            nodeEl.textContent = node.name;
+            nodeEl.style.color = "black";
+            nodeEl.className = 'node-label';
+            return new CSS3DObject(nodeEl);
           })
           .nodeColor((node: any) => {
             return this.getNodeColor(node.type as NodeType);
