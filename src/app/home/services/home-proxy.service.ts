@@ -12,7 +12,7 @@ export class HomeProxy {
 
       this.authService.getToken().subscribe((token: string) => {
           this.token = token;
-      })
+      });
     }
 
     public async getModifedWorkspaces(): Promise<Observable<any>> {

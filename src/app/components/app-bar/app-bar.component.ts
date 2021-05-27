@@ -3,7 +3,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoginDialogComponent } from './../login-dialog/login-dialog.component';
 
-const Login: string = "login";
+const Login: string = "Login";
+const UpdateToken: string = "Update Token";
 const Welcome: string = "Welcome";
 
 @Component({
@@ -23,6 +24,8 @@ export class AppBarComponent {
       const parsedToken = this.parseJwt(token);
       if (parsedToken !== null && parsedToken.name) {
           this.welcomeSTR = Welcome + " " + parsedToken.name;
+      } else if (token.length > 0) {
+        this.welcomeSTR = UpdateToken;
       } else {
         this.welcomeSTR = Login;
       }

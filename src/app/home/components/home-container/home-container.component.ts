@@ -5,6 +5,7 @@ import { Report, Dataset } from '../../models/dataModel';
 import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
 import {CSS3DRenderer, CSS3DObject} from 'three-css3drenderer';
+import { AuthService } from 'src/app/services/auth.service';
 declare var saveAs: any;
 
 @Component({
@@ -21,11 +22,22 @@ export class HomeContainerComponent {
   public reports: Report[] = [];
   public datasets: Dataset[] = [];
 
+  public canStartScan: boolean = false;
+
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor(private proxy: HomeProxy) { }
+  constructor(private proxy: HomeProxy,
+              private authService: AuthService) {
+    this.authService.getToken().subscribe((token: string) => {
+      this.canStartScan = token.length > 0;
+    });
+   }
 
   public async startScan(): Promise<void> {
+    if (!this.canStartScan) {
+      return;
+    }
+
     this.isScanTenantInProgress = true;
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();
