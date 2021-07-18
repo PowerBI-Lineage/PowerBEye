@@ -1,4 +1,7 @@
 <h1 mat-dialog-title>Power BI Token</h1>
 <div mat-dialog-content>Please enter your Power BI AAD token</div>
 <input type="text" [(ngModel)]="token">
-<button mat-button mat-dialog-close (click)="onClick()">Close</button>
+<div>
+	<button mat-button mat-dialog-close (click)="onClick()">Login</button>
+	<button mat-button mat-dialog-close (click)="closeDialog()">Close</button>
+</div>

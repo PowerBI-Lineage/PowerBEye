@@ -54,6 +54,15 @@ export class HomeContainerComponent {
       }
       this.isScanTenantInProgress = false;
     } catch (e) {
+      switch (e.status) {
+        case 401:
+          // TODO: show error "No tenant admin is logged in".
+          alert("401 - No tenant admin is logged in");
+        case 403:
+          // TODO: show error "No tenant admin is logged in".
+          alert("403 - change the environment / refresh the token");
+
+      }
       this.isScanTenantInProgress = false;
     }
   }

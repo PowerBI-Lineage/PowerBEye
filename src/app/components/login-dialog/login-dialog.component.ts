@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -9,9 +10,14 @@ import { AuthService } from 'src/app/services/auth.service';
 export class LoginDialogComponent {
   public token: string;
 
-  constructor (private authService: AuthService) {}
+  constructor(private authService: AuthService,
+    private dialogRef: MatDialogRef<LoginDialogComponent>) { }
 
   public onClick (): void {
     this.authService.setToken(this.token);
+  }
+
+  public closeDialog() {
+    this.dialogRef.close();
   }
 }
