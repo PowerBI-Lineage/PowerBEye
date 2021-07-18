@@ -8,6 +8,8 @@ import {CSS3DRenderer, CSS3DObject} from 'three-css3drenderer';
 import { AuthService } from 'src/app/services/auth.service';
 declare var saveAs: any;
 
+const WorkspaceLimit: number = 200;
+
 @Component({
   selector: 'home-container',
   templateUrl: './home-container.component.html',
@@ -42,11 +44,11 @@ export class HomeContainerComponent {
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();
       const result = await resultObserable.toPromise();
-  
+
       const workspacesIds = result.map(workspace => workspace.Id);
       let maxSize = workspacesIds.length;
       let index = 0;
-  
+
       while (index < maxSize)
       {
         await this.getWorkspacesScanFiles(workspacesIds.slice(index, index+100));
@@ -177,122 +179,142 @@ export class HomeContainerComponent {
   }
 
   private loadLineage(workspaces): void {
+    let numberOfWorkspaces = 0;
     // Traversing all workspaces
-      for (const workspace of workspaces) {
-          const workspaceNode: Node = {
-            id: workspace.id,
-            name: workspace.name,
-            type: NodeType.Workspace,
+    for (const workspace of workspaces) {
+        const workspaceNode: Node = {
+          id: workspace.id,
+          name: workspace.name,
+          type: NodeType.Workspace,
+          crossWSLinkAmount: 0,
+          workspaceId: workspace.id
+        };
+        this.nodes.push(workspaceNode);
+        numberOfWorkspaces++;
+
+        for (const dataset of workspace.datasets) {
+          dataset.workspaceId = workspace.id;
+          this.datasets.push(dataset);
+
+          const datasetNode: Node = {
+            id: dataset.id,
+            name: dataset.name,
+            type: NodeType.Dataset,
+            workspaceId: workspace.id
           };
-          this.nodes.push(workspaceNode);
+          this.nodes.push(datasetNode);
+          this.links.push({
+            source: workspaceNode.id,
+            target: datasetNode.id,
+            type: LinkType.Contains,
+          });
 
-          for (const dataset of workspace.datasets) {
-            dataset.workspaceId = workspace.id;
-            this.datasets.push(dataset);
-
-            const datasetNode: Node = {
-              id: dataset.id,
-              name: dataset.name,
-              type: NodeType.Dataset,
-            };
-            this.nodes.push(datasetNode);
-            this.links.push({
-              source: workspaceNode.id,
-              target: datasetNode.id,
-              type: LinkType.Contains,
-            });
-
-            if (dataset.upstreamDataflows) {
-              for (const upstreamDataflow of dataset.upstreamDataflows) {
-                if (upstreamDataflow.groupId !== dataset.workspaceId) {
-                  this.links.push({
-                    source: upstreamDataflow.groupId,
-                    target: dataset.workspaceId,
-                    type: LinkType.CrossWorkspace,
-                  });
-                }
+          if (dataset.upstreamDataflows) {
+            for (const upstreamDataflow of dataset.upstreamDataflows) {
+              if (upstreamDataflow.groupId !== dataset.workspaceId) {
+                this.links.push({
+                  source: upstreamDataflow.groupId,
+                  target: dataset.workspaceId,
+                  type: LinkType.CrossWorkspace,
+                });
+                workspaceNode.crossWSLinkAmount++;
               }
             }
           }
+        }
 
-          for (const dataflow of workspace.dataflows) {
-            dataflow.workspaceId= workspace.id;
-            const dataflowNode: Node = {
-              id: dataflow.objectId,
-              name: dataflow.name,
-              type: NodeType.Dataflow,
-            };
-            this.nodes.push(dataflowNode);
-            this.links.push({
-              source: workspaceNode.id,
-              target: dataflowNode.id,
-              type: LinkType.Contains
-            });
+        for (const dataflow of workspace.dataflows) {
+          dataflow.workspaceId= workspace.id;
+          const dataflowNode: Node = {
+            id: dataflow.objectId,
+            name: dataflow.name,
+            type: NodeType.Dataflow,
+            workspaceId: workspace.id
+          };
+          this.nodes.push(dataflowNode);
+          this.links.push({
+            source: workspaceNode.id,
+            target: dataflowNode.id,
+            type: LinkType.Contains
+          });
 
-            if (dataflow.upstreamDataflows) {
-              for (const upstreamDataflow of dataflow.upstreamDataflows) {
-                if (upstreamDataflow.groupId != dataflow.workspaceId) {
-                  this.links.push({
-                    source: upstreamDataflow.groupId,
-                    target: dataflow.workspaceId,
-                    type: LinkType.CrossWorkspace,
-                  });
-                }
+          if (dataflow.upstreamDataflows) {
+            for (const upstreamDataflow of dataflow.upstreamDataflows) {
+              if (upstreamDataflow.groupId != dataflow.workspaceId) {
+                this.links.push({
+                  source: upstreamDataflow.groupId,
+                  target: dataflow.workspaceId,
+                  type: LinkType.CrossWorkspace,
+                });
+                workspaceNode.crossWSLinkAmount++;
               }
             }
           }
+        }
 
-          for (const report of workspace.reports) {
-            report.workspaceId = workspace.id;
-            report.datasetId = report.datasetId;
-            this.reports.push(report);
+        for (const report of workspace.reports) {
+          report.workspaceId = workspace.id;
+          report.datasetId = report.datasetId;
+          this.reports.push(report);
 
-            const reportNode: Node = {
-              id: report.id,
-              name: report.name,
-              type: NodeType.Report,
-            };
-            this.nodes.push(reportNode);
-            this.links.push({
-              source: workspaceNode.id,
-              target: reportNode.id,
-              type: LinkType.Contains
-            });
-          }
+          const reportNode: Node = {
+            id: report.id,
+            name: report.name,
+            type: NodeType.Report,
+            workspaceId: workspace.id
+          };
+          this.nodes.push(reportNode);
+          this.links.push({
+            source: workspaceNode.id,
+            target: reportNode.id,
+            type: LinkType.Contains
+          });
+        }
 
-          for (const dashboard of workspace.dashboards) {
-            dashboard.workspaceId = workspace.id;
-            const dashboardNode: Node = {
-              id: dashboard.id,
-              name: dashboard.displayName,
-              type: NodeType.Dashboard,
-            };
-            this.nodes.push(dashboardNode);
-            this.links.push({
-              source: workspaceNode.id,
-              target: dashboardNode.id,
-              type: LinkType.Contains
-            });
-          }
-      }
+        for (const dashboard of workspace.dashboards) {
+          dashboard.workspaceId = workspace.id;
+          const dashboardNode: Node = {
+            id: dashboard.id,
+            name: dashboard.displayName,
+            type: NodeType.Dashboard,
+            workspaceId: workspace.id
+          };
+          this.nodes.push(dashboardNode);
+          this.links.push({
+            source: workspaceNode.id,
+            target: dashboardNode.id,
+            type: LinkType.Contains
+          });
+        }
+    }
 
     // Creating cross workspace connections between Reports and datasets
       for (const report of this.reports) {
-      const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
-      if (reportDatasetNode) {
-        const datasetWorkspaceId = reportDatasetNode.workspaceId;
-        if (report.workspaceId !== datasetWorkspaceId) {
-          this.links.push({
-            source: datasetWorkspaceId,
-            target: report.workspaceId,
-            type: LinkType.CrossWorkspace,
-          });
+        const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
+        if (reportDatasetNode) {
+          const datasetWorkspaceId = reportDatasetNode.workspaceId;
+          if (report.workspaceId !== datasetWorkspaceId) {
+            this.links.push({
+              source: datasetWorkspaceId,
+              target: report.workspaceId,
+              type: LinkType.CrossWorkspace,
+            });
+            this.nodes.find(node => node.id === datasetWorkspaceId).crossWSLinkAmount++;
+          }
         }
       }
-    }
 
-    // Need to clear references to workspaces that weren't encountered
-      const validLinks: Link[]=  this.links.filter(link=> workspaces.find(workspace => workspace.id === link.source));
+      // Need to clear references to workspaces that weren't encountered
+      let validLinks: Link[]=  this.links.filter(link=> workspaces.find(workspace => workspace.id === link.source));
+
+      // should reduce workspaces node
+      if (numberOfWorkspaces > WorkspaceLimit) {
+        const workspaceNodes = this.nodes.filter(node=>node.type === NodeType.Workspace);
+        const limitedWorkspaceNodes = workspaceNodes.sort(function(a, b){return b.crossWSLinkAmount > a.crossWSLinkAmount ? 1 : -1}).slice(0,WorkspaceLimit).map(node => node.id);
+        this.nodes = this.nodes.filter(node => limitedWorkspaceNodes.includes(node.workspaceId));
+        const nodeIds = this.nodes.map(node=>node.id);
+        validLinks = validLinks.filter(link => nodeIds.includes(link.source) && nodeIds.includes(link.target))
+      }
 
       const gData = {
         nodes: this.nodes,
@@ -334,7 +356,6 @@ export class HomeContainerComponent {
             return this.getNodeColor(node.type as NodeType);
           });
 
-      this.shouldShowGraph = true;
+        this.shouldShowGraph = true;
     }
-
 }

@@ -15,6 +15,8 @@ export interface Node {
   id: string;
   type: NodeType;
   name: string;
+  workspaceId: string;
+  crossWSLinkAmount?: number;
 }
 
 export interface Link {
