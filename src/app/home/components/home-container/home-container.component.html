@@ -3,10 +3,10 @@
       <p class="title">Use PowerB Eye to generate a 3D visualization of all the content and workspaces in your tenant and the connections between them.</p>
       <p class="subTitle">Start by scanning the tenant. Then, select 'Show visualization' to open the file and display the 3D visual.</p>
       <div class="buttonContainer">
-        <div class="scanButton" (click)="startScan()" *ngIf="!isScanTenantInProgress">
+        <div class="scanButton" (click)="startScan()">
           <p>Scan tenant</p>
         </div>
-        <mat-spinner class="spinner" *ngIf="isScanTenantInProgress"></mat-spinner>
+        <!-- <mat-spinner class="spinner" *ngIf="isScanTenantInProgress"></mat-spinner> -->
         <div class="visButton" (click)="onAddFile()">
           <p>Show visualization</p>
         </div>

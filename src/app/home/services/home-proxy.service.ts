@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
+declare let saveAs: any;
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class HomeProxy {
   private token: string;
+  public shouldStopScan: boolean = false;
+  private scanInfoStatusChanged$: BehaviorSubject<{ [scanInfoId: string]: string }> = new BehaviorSubject({});
 
   constructor(private httpService: HttpClient,
     private authService: AuthService,
@@ -14,6 +17,33 @@ export class HomeProxy {
     this.authService.getToken().subscribe((token: string) => {
       this.token = token.replace(/Bearer /g, '');
     });
+  }
+
+  public finishScan(isFinishScan: boolean) {
+    if (isFinishScan) {
+      
+    }
+  }
+
+  public getScanInfoStatusChanged(): Observable<{ [scanInfoId: string]: string }> {
+    return this.scanInfoStatusChanged$.asObservable();
+  }
+
+  public stopScan(): void {
+    this.shouldStopScan = true;
+  }
+
+  public setScanInfoStatusChanged(value: { [scanInfoId: string]: string }): void {
+    this.scanInfoStatusChanged$.next(value);
+  }
+
+  public saveAsFile(t: any, f: any, m: any): void {
+    try {
+      const b = new Blob([t], { type: m });
+      saveAs(b, f);
+    } catch (e) {
+      window.open('data:' + m + ',' + encodeURIComponent(t), '_blank', '');
+    }
   }
 
   public async getModifedWorkspaces(): Promise<Observable<any>> {
@@ -87,7 +117,7 @@ export class HomeProxy {
       }
       case 'dxt': {
         return {
-          apiUrl: 'wabi-staging-us-east-redirect.analysis',
+          apiUrl: 'wabi-staging-us-east-redirect.analysis.windows.net',
           url: 'https://dxt.powerbi.com/'
         };
       }

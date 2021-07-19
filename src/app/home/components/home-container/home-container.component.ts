@@ -6,10 +6,14 @@ import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
 import { AuthService } from 'src/app/services/auth.service';
 import SpriteText from 'three-spritetext';
-declare let saveAs: any;
+import { concatMap, bufferCount, take } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin, range } from 'rxjs';
+import { OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 
 const WorkspaceLimit: number = 200;
-
+const maxParallelBEcalls: number = 16;
 @Component({
   selector: 'home-container',
   templateUrl: './home-container.component.html',
@@ -24,34 +28,32 @@ export class HomeContainerComponent {
   public datasets: Dataset[] = [];
 
   public canStartScan: boolean = false;
+  public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
+  public scanStatusPercent: number = 0;
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor (private proxy: HomeProxy,
-              private authService: AuthService) {
+  constructor(private proxy: HomeProxy,
+    private authService: AuthService,
+    private dialog: MatDialog) {
     this.authService.getToken().subscribe((token: string) => {
       this.canStartScan = token.length > 0;
     });
   }
 
-  public async startScan (): Promise<void> {
+  public async startScan(): Promise<void> {
     if (!this.canStartScan) {
       return;
     }
-
+    this.dialog.open(ProgressBarDialogComponent);
     this.isScanTenantInProgress = true;
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();
       const result = await resultObserable.toPromise();
+      const workspacesIds = result.slice(0, maxParallelBEcalls * 100).map(workspace => workspace.Id);
 
-      const workspacesIds = result.map(workspace => workspace.Id);
-      const maxSize = workspacesIds.length;
-      let index = 0;
+      this.getWorkspacesScanFilesParallel(workspacesIds);
 
-      while (index < maxSize) {
-        await this.getWorkspacesScanFiles(workspacesIds.slice(index, index + 100));
-        index += 100;
-      }
       this.isScanTenantInProgress = false;
     } catch (e) {
       switch (e.status) {
@@ -59,7 +61,7 @@ export class HomeContainerComponent {
           // TODO: show error "No tenant admin is logged in".
           alert("401 - No tenant admin is logged in");
         case 403:
-          // TODO: show error "No tenant admin is logged in".
+          // TODO: show error "change the environment / refresh the token".
           alert("403 - change the environment / refresh the token");
 
       }
@@ -67,32 +69,38 @@ export class HomeContainerComponent {
     }
   }
 
-  public async getWorkspacesScanFiles (workspaceIds: string[]) {
+  public async getWorkspacesScanFiles(workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
+      if (this.proxy.shouldStopScan) {
+        break;
+      }
+      this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
+      this.proxy.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
       await this.sleep(1000);
       scanInfo = await this.proxy.getWorkspacesScanStatus(scanInfo.id).toPromise();
     }
-
-    this.downloadFiles(scanInfo);
+    this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
+    this.proxy.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
+    // this.downloadFiles(scanInfo);
   }
 
-  public sleep (ms) {
+  public sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  public downloadFiles (scanInfo): void {
-    if (scanInfo.status !== 'Succeeded') {
-      return;
-    }
+  // public downloadFiles(scanInfo): void {
+  //   if (scanInfo.status !== 'Succeeded') {
+  //     return;
+  //   }
 
-    this.proxy.getWorkspacesScanResult(scanInfo.id).subscribe(result => {
-      this.saveAsFile(JSON.stringify(result), 'workspaces' + scanInfo.id + '.JSON', 'text/plain;charset=utf-8');
-    });
-  }
+  //   this.proxy.getWorkspacesScanResult(scanInfo.id).subscribe(result => {
+  //     this.saveAsFile(JSON.stringify(result), 'workspaces' + scanInfo.id + '.JSON', 'text/plain;charset=utf-8');
+  //   });
+  // }
 
-  public onAddFile (): void {
+  public onAddFile(): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -100,7 +108,7 @@ export class HomeContainerComponent {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded (): void {
+  public onFileAdded(): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -116,16 +124,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private saveAsFile (t: any, f: any, m: any): void {
-    try {
-      const b = new Blob([t], { type: m });
-      saveAs(b, f);
-    } catch (e) {
-      window.open('data:' + m + ',' + encodeURIComponent(t), '_blank', '');
-    }
-  }
-
-  private getNodeColor (nodeType: NodeType) : string {
+  private getNodeColor(nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -148,7 +147,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private getNodeTypeImage (nodeType: NodeType) : THREE.Mesh {
+  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -184,7 +183,7 @@ export class HomeContainerComponent {
     return sphere;
   }
 
-  private loadLineage (workspaces): void {
+  private loadLineage(workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -362,4 +361,21 @@ export class HomeContainerComponent {
 
     this.shouldShowGraph = true;
   }
+
+  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
+    let index = 0;
+    let observables = [];
+    while (index < workspaceIds.length) {
+      observables.push(this.getWorkspacesScanFiles(workspaceIds.slice(index, index + 100)));
+      index += 100;
+    }
+    forkJoin(observables).pipe(take(1)).subscribe();
+
+    // range(0, workspaceIds.length).pipe(
+    //   bufferCount(maxParallelBEcalls),
+    //   concatMap((calls: number[]) => forkJoin(calls.map(call =>
+    //     this.getWorkspacesScanFiles(workspaceIds.slice(index, index + 100)))
+  }
+
+
 }
