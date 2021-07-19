@@ -4,7 +4,7 @@
         "es2021": true
     },
     "extends": [
-      "eslint:recommended"
+      "standard"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -15,11 +15,12 @@
         "@typescript-eslint"
     ],
     "rules": {
-      "semi": ["error", "always"],
+      "semi":  ["error", "always"],
       "no-useless-concat": ["error"],
       "no-console": ["off"],
       "no-debugger": ["error"],
       "no-unused-vars": "off",
+      "no-useless-constructor": "off",
       "no-unexpected-multiline": "off",
       "no-lonely-if": ["error"]
     }

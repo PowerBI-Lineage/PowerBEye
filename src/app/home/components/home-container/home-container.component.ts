@@ -317,10 +317,9 @@ export class HomeContainerComponent {
       links: validLinks
     };
 
-    const Graph = ForceGraph3D({
+    ForceGraph3D({
       controlType: 'orbit'
-    })
-    (document.getElementById('3d-graph'))
+    })(document.getElementById('3d-graph'))
       .graphData(gData)
       .enableNodeDrag(false)
       .onNodeClick((node: any) => {

@@ -18,16 +18,16 @@ export interface Dashboard {
   tiles: Tile[];
 }
 
+export interface DataflowReference {
+  targetDataflowId: string;
+  groupId: string;
+}
+
 export interface Dataflow {
   objectId: string;
   name: string;
   workspaceId: string;
   upstreamDataflows: DataflowReference[];
-}
-
-export interface DataflowReference {
-  targetDataflowId: string;
-  groupId: string;
 }
 
 export interface Dataset {
