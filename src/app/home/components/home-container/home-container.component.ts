@@ -333,7 +333,8 @@ export class HomeContainerComponent {
       .enableNodeDrag(false)
       .onNodeClick((node: any) => {
         if (node.type === NodeType.Workspace) {
-          window.open(`https://powerbi-idog.analysis.windows-int.net/groups/${node.id}/lineage`, '_blank');
+          const url: string = this.proxy.getEnvironment().url;
+          window.open(`${url}/groups/${node.id}/lineage`, '_blank');
         }
       })
       .linkDirectionalParticles((link: any) => {

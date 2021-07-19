@@ -17,7 +17,7 @@ export class HomeProxy {
   }
 
   public async getModifedWorkspaces(): Promise<Observable<any>> {
-    const apiUrl: string = this.getEnvironment();
+    const apiUrl: string = this.getEnvironment().apiUrl;
 
     const req = {
       method: 'GET',
@@ -33,7 +33,7 @@ export class HomeProxy {
   }
 
   public getWorkspacesInfo(workspaceArray: string[]): Observable<any> {
-    const apiUrl: string = this.getEnvironment();
+    const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'POST',
       url: `https://${apiUrl}/v1.0/myorg/admin/workspaces/getInfo?lineage=true`,
@@ -47,7 +47,7 @@ export class HomeProxy {
   }
 
   public getWorkspacesScanStatus(scanId: string): Observable<any> {
-    const apiUrl: string = this.getEnvironment();
+    const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
       url: `https://${apiUrl}/v1.0/myorg/admin/workspaces/scanStatus/${scanId}`,
@@ -61,7 +61,7 @@ export class HomeProxy {
   }
 
   public getWorkspacesScanResult(scanId: string): Observable<any> {
-    const apiUrl: string = this.getEnvironment();
+    const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
       url: `https://${apiUrl}/v1.0/myorg/admin/workspaces/scanResult/${scanId}`,
@@ -74,25 +74,40 @@ export class HomeProxy {
     return this.httpService.get(req.url, req);
   }
 
-  private getEnvironment(): string {
+  public getEnvironment(): { apiUrl: string, url: string } {
     const env: string = this.route.snapshot.queryParams['env'];
     const envLowerCase: string = env ? env.toLocaleLowerCase() : env;
     switch (envLowerCase) {
       case 'edog':
       case 'idog': {
-        return 'biazure-int-edog-redirect.analysis-df.windows.net';
+        return {
+          apiUrl: 'biazure-int-edog-redirect.analysis-df.windows.net',
+          url: 'https://powerbi-idog.analysis.windows-int.net/'
+        };
       }
       case 'dxt': {
-        return 'wabi-staging-us-east-redirect.analysis';
+        return {
+          apiUrl: 'wabi-staging-us-east-redirect.analysis',
+          url: 'https://dxt.powerbi.com/'
+        };
       }
-      case 'msit':{
-        return 'df-msit-scus-redirect.analysis.windows.net';
+      case 'msit': {
+        return {
+          apiUrl: 'df-msit-scus-redirect.analysis.windows.net',
+          url: 'https://msit.powerbi.com'
+        };
       }
-      case 'prod':{
-        return 'wabi-staging-us-east-redirect.analysis.windows.net';
+      case 'prod': {
+        return {
+          apiUrl: 'wabi-staging-us-east-redirect.analysis.windows.net',
+          url: 'https://app.powerbi.com/'
+        };
       }
       default:
-        return 'wabi-staging-us-east-redirect.analysis.windows.net';
+        return {
+          apiUrl: 'wabi-staging-us-east-redirect.analysis.windows.net',
+          url: 'https://app.powerbi.com/'
+        };
     }
   }
 }
