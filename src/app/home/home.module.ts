@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [
     CommonModule,
     HomeRoutingModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule
   ]
 })
 export class HomeModule { }

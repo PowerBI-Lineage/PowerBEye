@@ -12,7 +12,7 @@ import { OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 
-const WorkspaceLimit: number = 200;
+const WorkspaceLimit: number = 1;
 const maxParallelBEcalls: number = 16;
 @Component({
   selector: 'home-container',
@@ -57,13 +57,16 @@ export class HomeContainerComponent {
       this.isScanTenantInProgress = false;
     } catch (e) {
       switch (e.status) {
-        case 401:
+        case 401: {
           // TODO: show error "No tenant admin is logged in".
-          alert("401 - No tenant admin is logged in");
-        case 403:
+          alert('401 - No tenant admin is logged in');
+          break;
+        }
+        case 403: {
           // TODO: show error "change the environment / refresh the token".
-          alert("403 - change the environment / refresh the token");
-
+          alert('403 - change the environment / refresh the token');
+          break;
+        }
       }
       this.isScanTenantInProgress = false;
     }
@@ -191,7 +194,7 @@ export class HomeContainerComponent {
         id: workspace.id,
         name: workspace.name,
         type: NodeType.Workspace,
-        crossWSLinkAmount: 0,
+        crossWSIds: [],
         workspaceId: workspace.id
       };
       this.nodes.push(workspaceNode);
@@ -218,11 +221,11 @@ export class HomeContainerComponent {
           for (const upstreamDataflow of dataset.upstreamDataflows) {
             if (upstreamDataflow.groupId !== dataset.workspaceId) {
               this.links.push({
-                source: upstreamDataflow.groupId,
-                target: dataset.workspaceId,
+                source: dataset.workspaceId,
+                target: upstreamDataflow.groupId,
                 type: LinkType.CrossWorkspace
               });
-              workspaceNode.crossWSLinkAmount++;
+              workspaceNode.crossWSIds.push(upstreamDataflow.groupId);
             }
           }
         }
@@ -247,12 +250,12 @@ export class HomeContainerComponent {
           for (const upstreamDataflow of dataflow.upstreamDataflows) {
             if (upstreamDataflow.groupId !== dataflow.workspaceId) {
               this.links.push({
-                source: upstreamDataflow.groupId,
-                target: dataflow.workspaceId,
+                source: dataflow.workspaceId,
+                target: upstreamDataflow.groupId,
                 type: LinkType.CrossWorkspace
               });
-              workspaceNode.crossWSLinkAmount++;
             }
+            workspaceNode.crossWSIds.push(dataflow.workspaceId);
           }
         }
       }
@@ -299,11 +302,11 @@ export class HomeContainerComponent {
         const datasetWorkspaceId = reportDatasetNode.workspaceId;
         if (report.workspaceId !== datasetWorkspaceId) {
           this.links.push({
-            source: datasetWorkspaceId,
-            target: report.workspaceId,
+            source: report.workspaceId,
+            target: datasetWorkspaceId,
             type: LinkType.CrossWorkspace
           });
-          this.nodes.find(node => node.id === datasetWorkspaceId).crossWSLinkAmount++;
+          this.nodes.find(node => node.id === report.workspaceId).crossWSIds.push(datasetWorkspaceId);
         }
       }
     }
@@ -314,7 +317,23 @@ export class HomeContainerComponent {
     // should reduce workspaces node
     if (numberOfWorkspaces > WorkspaceLimit) {
       const workspaceNodes = this.nodes.filter(node => node.type === NodeType.Workspace);
-      const limitedWorkspaceNodes = workspaceNodes.sort(function (a, b) { return b.crossWSLinkAmount > a.crossWSLinkAmount ? 1 : -1; }).slice(0, WorkspaceLimit).map(node => node.id);
+      const limitedWorkspaceInfo = workspaceNodes.sort(function (a, b) { return b.crossWSIds.length > a.crossWSIds.length ? 1 : -1; }).slice(0, WorkspaceLimit).map(node => {
+        return {
+          id: node.id,
+          crossWSIds: node.crossWSIds
+        };
+      });
+
+      let limitedWorkspaceNodes = [];
+      for (const info of limitedWorkspaceInfo) {
+        const node = this.nodes.find(limitedWorkspaceNode => limitedWorkspaceNode.id === info.id);
+        if (!node) {
+          continue;
+        }
+        limitedWorkspaceNodes.push(info.id);
+        limitedWorkspaceNodes = [...new Set([...limitedWorkspaceNodes, ...info.crossWSIds])];
+      }
+
       this.nodes = this.nodes.filter(node => limitedWorkspaceNodes.includes(node.workspaceId));
       const nodeIds = this.nodes.map(node => node.id);
       validLinks = validLinks.filter(link => nodeIds.includes(link.source) && nodeIds.includes(link.target));

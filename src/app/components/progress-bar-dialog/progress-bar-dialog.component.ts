@@ -14,14 +14,14 @@ export class ProgressBarDialogComponent implements OnInit {
   public scanStatusPercent: number = 0;
   public isScanTenantInProgress: boolean = true;
 
-  constructor(private dialogRef: MatDialogRef<ProgressBarDialogComponent>,
+  constructor (private dialogRef: MatDialogRef<ProgressBarDialogComponent>,
     private proxy: HomeProxy) { }
 
-  public ngOnInit(): void {
+  public ngOnInit (): void {
     this.updateStatus();
   }
 
-  private updateStatus() {
+  private updateStatus () {
     this.proxy.getScanInfoStatusChanged().subscribe((scanInfoStatusByScanId: { [scanInfoId: string]: string }) => {
       this.scanInfoStatusByScanId = scanInfoStatusByScanId;
       const numberOfRequests = Object.keys(scanInfoStatusByScanId).length;
@@ -37,19 +37,19 @@ export class ProgressBarDialogComponent implements OnInit {
     });
   }
 
-  public closeDialog() {
+  public closeDialog () {
     this.proxy.stopScan();
     this.scanStatusPercent = 0;
     this.isScanTenantInProgress = false;
     this.dialogRef.close();
   }
 
-  public showVisualization() {
+  public showVisualization () {
     this.dialogRef.close();
   }
 
-  public downloadJson() {
-    let observables = [];
+  public downloadJson () {
+    const observables = [];
 
     for (const [scanInfoId, scanInfoStatus] of Object.entries(this.scanInfoStatusByScanId)) {
       if (scanInfoStatus === 'Succeeded') {
@@ -58,7 +58,7 @@ export class ProgressBarDialogComponent implements OnInit {
     }
 
     forkJoin(observables).pipe(take(1)).subscribe(arrayResult => {
-      let result = { workspaces: [] };
+      const result = { workspaces: [] };
       arrayResult.forEach((resultScanner: any) => {
         result.workspaces = [...result.workspaces, ...resultScanner.workspaces];
       });
@@ -66,5 +66,4 @@ export class ProgressBarDialogComponent implements OnInit {
       this.proxy.saveAsFile(JSON.stringify(result), 'workspaces' + 'liad' + '.JSON', 'text/plain;charset=utf-8');
     });
   }
-
 }
