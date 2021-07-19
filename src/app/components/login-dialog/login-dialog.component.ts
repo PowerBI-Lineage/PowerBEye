@@ -7,12 +7,11 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./login-dialog.component.less']
 })
 export class LoginDialogComponent {
-
   public token: string;
 
-  constructor(private authService: AuthService) {}
+  constructor (private authService: AuthService) {}
 
-  public onClick(): void {
+  public onClick (): void {
     this.authService.setToken(this.token);
   }
 }

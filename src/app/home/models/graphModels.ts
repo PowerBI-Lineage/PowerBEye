@@ -24,4 +24,3 @@ export interface Link {
   target: string;
   type: LinkType;
 }
-

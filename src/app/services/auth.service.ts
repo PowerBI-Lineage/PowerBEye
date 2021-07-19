@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  public tokenUpdate: BehaviorSubject<string> = new BehaviorSubject('');;
 
-  public tokenUpdate: BehaviorSubject<string> = new BehaviorSubject("");;
+  constructor () { }
 
-  constructor() { }
-
-  public setToken(token: string) {
+  public setToken (token: string) {
     this.tokenUpdate.next(token);
   }
 
-  public getToken(): Observable<string> {
+  public getToken (): Observable<string> {
     return this.tokenUpdate.asObservable();
   }
 }
