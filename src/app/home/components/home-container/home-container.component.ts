@@ -4,8 +4,8 @@ import ForceGraph3D from '3d-force-graph';
 import { Report, Dataset } from '../../models/dataModel';
 import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
-import {CSS3DRenderer, CSS3DObject} from 'three-css3drenderer';
 import { AuthService } from 'src/app/services/auth.service';
+import SpriteText from 'three-spritetext';
 declare var saveAs: any;
 
 const WorkspaceLimit: number = 200;
@@ -323,7 +323,6 @@ export class HomeContainerComponent {
 
       const Graph = ForceGraph3D({
         controlType: "orbit",
-        extraRenderers: [new CSS3DRenderer()]
       })
         (document.getElementById('3d-graph'))
           .graphData(gData)
@@ -345,12 +344,12 @@ export class HomeContainerComponent {
             if (node.type !== NodeType.Workspace) {
               return this.getNodeTypeImage(node.type as NodeType);
             }
-        
-            const nodeEl = document.createElement('div');
-            nodeEl.textContent = node.name;
-            nodeEl.style.color = "black";
-            nodeEl.className = 'node-label';
-            return new CSS3DObject(nodeEl);
+
+            const sprite = new SpriteText(node.name);
+            //sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = 'rgba(255,255,255,0.8)';
+            sprite.textHeight = 15;
+            return sprite;
           })
           .nodeColor((node: any) => {
             return this.getNodeColor(node.type as NodeType);
