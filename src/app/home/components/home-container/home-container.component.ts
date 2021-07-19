@@ -6,14 +6,15 @@ import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
 import { AuthService } from 'src/app/services/auth.service';
 import SpriteText from 'three-spritetext';
-import { concatMap, bufferCount, take } from 'rxjs/operators';
-import { BehaviorSubject, forkJoin, range } from 'rxjs';
-import { OnInit } from '@angular/core';
+import { take } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
+import { constants } from 'buffer';
 
-const WorkspaceLimit: number = 1;
+const WorkspaceLimit: number = 100;
 const maxParallelBEcalls: number = 16;
+
 @Component({
   selector: 'home-container',
   templateUrl: './home-container.component.html',
@@ -33,7 +34,7 @@ export class HomeContainerComponent {
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor(private proxy: HomeProxy,
+  constructor (private proxy: HomeProxy,
     private authService: AuthService,
     private dialog: MatDialog) {
     this.authService.getToken().subscribe((token: string) => {
@@ -41,7 +42,7 @@ export class HomeContainerComponent {
     });
   }
 
-  public async startScan(): Promise<void> {
+  public async startScan (): Promise<void> {
     if (!this.canStartScan) {
       return;
     }
@@ -72,7 +73,7 @@ export class HomeContainerComponent {
     }
   }
 
-  public async getWorkspacesScanFiles(workspaceIds: string[]) {
+  public async getWorkspacesScanFiles (workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
@@ -89,7 +90,7 @@ export class HomeContainerComponent {
     // this.downloadFiles(scanInfo);
   }
 
-  public sleep(ms) {
+  public sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
@@ -103,7 +104,7 @@ export class HomeContainerComponent {
   //   });
   // }
 
-  public onAddFile(): void {
+  public onAddFile (): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -111,7 +112,7 @@ export class HomeContainerComponent {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded(): void {
+  public onFileAdded (): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -127,7 +128,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private getNodeColor(nodeType: NodeType): string {
+  private getNodeColor (nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -150,7 +151,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
+  private getNodeTypeImage (nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -186,7 +187,7 @@ export class HomeContainerComponent {
     return sphere;
   }
 
-  private loadLineage(workspaces): void {
+  private loadLineage (workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -381,9 +382,9 @@ export class HomeContainerComponent {
     this.shouldShowGraph = true;
   }
 
-  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
+  private async getWorkspacesScanFilesParallel (workspaceIds: string[]) {
     let index = 0;
-    let observables = [];
+    const observables = [];
     while (index < workspaceIds.length) {
       observables.push(this.getWorkspacesScanFiles(workspaceIds.slice(index, index + 100)));
       index += 100;
@@ -395,6 +396,4 @@ export class HomeContainerComponent {
     //   concatMap((calls: number[]) => forkJoin(calls.map(call =>
     //     this.getWorkspacesScanFiles(workspaceIds.slice(index, index + 100)))
   }
-
-
 }

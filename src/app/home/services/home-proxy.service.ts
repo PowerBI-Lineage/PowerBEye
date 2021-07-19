@@ -11,7 +11,7 @@ export class HomeProxy {
   public shouldStopScan: boolean = false;
   private scanInfoStatusChanged$: BehaviorSubject<{ [scanInfoId: string]: string }> = new BehaviorSubject({});
 
-  constructor(private httpService: HttpClient,
+  constructor (private httpService: HttpClient,
     private authService: AuthService,
     private route: ActivatedRoute) {
     this.authService.getToken().subscribe((token: string) => {
@@ -19,25 +19,22 @@ export class HomeProxy {
     });
   }
 
-  public finishScan(isFinishScan: boolean) {
-    if (isFinishScan) {
-      
-    }
+  public finishScan (isFinishScan: boolean) {
   }
 
-  public getScanInfoStatusChanged(): Observable<{ [scanInfoId: string]: string }> {
+  public getScanInfoStatusChanged (): Observable<{ [scanInfoId: string]: string }> {
     return this.scanInfoStatusChanged$.asObservable();
   }
 
-  public stopScan(): void {
+  public stopScan (): void {
     this.shouldStopScan = true;
   }
 
-  public setScanInfoStatusChanged(value: { [scanInfoId: string]: string }): void {
+  public setScanInfoStatusChanged (value: { [scanInfoId: string]: string }): void {
     this.scanInfoStatusChanged$.next(value);
   }
 
-  public saveAsFile(t: any, f: any, m: any): void {
+  public saveAsFile (t: any, f: any, m: any): void {
     try {
       const b = new Blob([t], { type: m });
       saveAs(b, f);
@@ -46,7 +43,7 @@ export class HomeProxy {
     }
   }
 
-  public async getModifedWorkspaces(): Promise<Observable<any>> {
+  public async getModifedWorkspaces (): Promise<Observable<any>> {
     const apiUrl: string = this.getEnvironment().apiUrl;
 
     const req = {
@@ -56,13 +53,13 @@ export class HomeProxy {
         'Content-Type': 'application/json',
         authorization: 'Bearer ' + this.token,
         'X-POWERBI-ADMIN-CLIENT-NAME': 'PowerBEye'
-      },
+      }
     };
 
     return this.httpService.get(req.url, req);
   }
 
-  public getWorkspacesInfo(workspaceArray: string[]): Observable<any> {
+  public getWorkspacesInfo (workspaceArray: string[]): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'POST',
@@ -70,42 +67,42 @@ export class HomeProxy {
       headers: {
         authorization: 'Bearer ' + this.token,
         'X-POWERBI-ADMIN-CLIENT-NAME': 'PowerBEye'
-      },
+      }
     };
 
     return this.httpService.post(req.url, { workspaces: workspaceArray }, req);
   }
 
-  public getWorkspacesScanStatus(scanId: string): Observable<any> {
+  public getWorkspacesScanStatus (scanId: string): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
       url: `https://${apiUrl}/v1.0/myorg/admin/workspaces/scanStatus/${scanId}`,
       headers: {
         'Content-Type': 'application/json',
-        authorization: 'Bearer ' + this.token,
-      },
+        authorization: 'Bearer ' + this.token
+      }
     };
 
     return this.httpService.get(req.url, req);
   }
 
-  public getWorkspacesScanResult(scanId: string): Observable<any> {
+  public getWorkspacesScanResult (scanId: string): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
       url: `https://${apiUrl}/v1.0/myorg/admin/workspaces/scanResult/${scanId}`,
       headers: {
         'Content-Type': 'application/json',
-        authorization: 'Bearer ' + this.token,
-      },
+        authorization: 'Bearer ' + this.token
+      }
     };
 
     return this.httpService.get(req.url, req);
   }
 
-  public getEnvironment(): { apiUrl: string, url: string } {
-    const env: string = this.route.snapshot.queryParams['env'];
+  public getEnvironment (): { apiUrl: string, url: string } {
+    const env: string = this.route.snapshot.queryParams.env;
     const envLowerCase: string = env ? env.toLocaleLowerCase() : env;
     switch (envLowerCase) {
       case 'edog':

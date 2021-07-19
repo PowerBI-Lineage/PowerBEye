@@ -9,7 +9,7 @@
     "e2e": "ng e2e",
     "docs": "ng build --prod --output-path=docs --base-href=https://powerbi-lineage.github.io/PowerBEye/ --deploy-url=https://powerbi-lineage.github.io/PowerBEye/",
     "postinstall": "ngcc",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts --fix"
   },
   "private": true,
   "dependencies": {
