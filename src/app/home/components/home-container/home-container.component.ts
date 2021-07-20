@@ -13,7 +13,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 import { LoginDialogComponent } from 'src/app/components/login-dialog/login-dialog.component';
 
-const WorkspaceLimit: number = 2;
+const WorkspaceLimit: number = 100;
 const maxParallelBEcalls: number = 16;
 
 @Component({
