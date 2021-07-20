@@ -13,7 +13,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 import { LoginDialogComponent } from 'src/app/components/login-dialog/login-dialog.component';
 
-const WorkspaceLimit: number = 100;
+const WorkspaceLimit: number = 2;
 const maxParallelBEcalls: number = 16;
 
 @Component({
@@ -48,10 +48,9 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     this.scanService.getLoadLineage().pipe(
-      filter(data => !data),
       takeUntil(this.destroy$),
     )
-    .subscribe(workspaces => this.loadLineage(workspaces));
+    .subscribe(workspaces => workspaces && workspaces.length > 0 ? this.loadLineage(workspaces) : null);
   }
 
   public ngOnDestroy(): void {
@@ -64,8 +63,8 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       this.dialog.open(LoginDialogComponent);
       return;
     }
-
-    this.progressBarDialogRef = this.dialog.open(ProgressBarDialogComponent);
+    this.scanService.shouldStopScan = false;
+    this.progressBarDialogRef = this.dialog.open(ProgressBarDialogComponent, {disableClose: true});
     this.isScanTenantInProgress = true;
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();

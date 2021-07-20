@@ -17,7 +17,9 @@ export class ProgressBarDialogComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject();
 
   constructor(private dialogRef: MatDialogRef<ProgressBarDialogComponent>,
-    private scanService: ScanService) { }
+    private scanService: ScanService) {
+    this.dialogRef.disableClose = true;
+  }
 
   public ngOnInit(): void {
     this.updateStatus();
@@ -42,14 +44,15 @@ export class ProgressBarDialogComponent implements OnInit, OnDestroy {
         }
         this.scanStatusPercent = Math.round((numberOfSuccessRequests / numberOfRequests) * 100);
         this.isScanTenantInProgress = this.scanStatusPercent < 100;
-        this.scanService.finishScan(this.scanStatusPercent >= 100);
       });
   }
 
   public closeDialog() {
-    this.scanService.stopScan();
     this.scanStatusPercent = 0;
     this.isScanTenantInProgress = false;
+    this.scanService.stopScan();
+    this.destroy$.next();
+    this.scanService.initScanInfoStatusChanged();
     this.dialogRef.close();
   }
 
@@ -59,6 +62,6 @@ export class ProgressBarDialogComponent implements OnInit, OnDestroy {
   }
 
   public downloadJson() {
-    this.scanService.loadLineage(this.scanInfoStatusByScanId);
+    this.scanService.downloadJson(this.scanInfoStatusByScanId);
   }
 }

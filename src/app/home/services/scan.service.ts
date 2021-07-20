@@ -16,9 +16,6 @@ export class ScanService {
 
   constructor(private proxy: HomeProxy) { }
 
-  public finishScan(isFinishScan: boolean) {
-  }
-
   public stopScan(): void {
     this.shouldStopScan = true;
   }
@@ -45,12 +42,15 @@ export class ScanService {
     this.scanInfoStatusChanged$.next(value);
   }
 
+  public initScanInfoStatusChanged(): void {
+    this.scanInfoStatusChanged$ = new BehaviorSubject({});
+  }
+
   public downloadJson(scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
     this.getWorkspacesResult(scanInfoStatusByScanId).pipe(take(1)).subscribe(result => {
       this.saveAsFile(JSON.stringify(result), `workspaces${(new Date().toJSON().slice(0, 10))}.JSON`, 'text/plain;charset=utf-8');
     });
   }
-
 
   public getWorkspacesResult(scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
     const observables = [];
