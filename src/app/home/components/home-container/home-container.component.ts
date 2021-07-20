@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import SpriteText from 'three-spritetext';
 import { take, map, switchMap, takeUntil, filter } from 'rxjs/operators';
 import { forkJoin, Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 import { LoginDialogComponent } from 'src/app/components/login-dialog/login-dialog.component';
 
@@ -32,6 +32,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
   public canStartScan: boolean = false;
   public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
   public scanStatusPercent: number = 0;
+  private progressBarDialogRef: MatDialogRef<ProgressBarDialogComponent>;
   private destroy$: Subject<void> = new Subject();
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
@@ -64,7 +65,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.dialog.open(ProgressBarDialogComponent);
+    this.progressBarDialogRef = this.dialog.open(ProgressBarDialogComponent);
     this.isScanTenantInProgress = true;
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();
@@ -87,6 +88,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
           break;
         }
       }
+      this.progressBarDialogRef.close();
       this.isScanTenantInProgress = false;
     }
   }
