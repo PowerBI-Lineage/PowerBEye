@@ -10,6 +10,6 @@
 
 <mat-dialog-actions>
 	<button mat-button [disabled]="isScanTenantInProgress" (click)="downloadJson()">DownloadJson</button>
-	<button mat-button [disabled]="isScanTenantInProgress"  (click)="showVisualization()">Show visualization</button>
-	<button mat-button mat-dialog-close (click)="closeDialog()">Stop scan</button>
+	<button mat-button disabled (click)="showVisualization()">Show visualization</button>
+	<button mat-button mat-dialog-close (click)="closeDialog()">{{isScanTenantInProgress ? 'Stop scan' : 'Close'}}</button>
 <mat-dialog-actions>
