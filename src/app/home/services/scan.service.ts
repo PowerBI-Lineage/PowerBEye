@@ -13,11 +13,14 @@ export class ScanService {
   public shouldStopScan: boolean = false;
   private scanInfoStatusChanged$: BehaviorSubject<{ [scanInfoId: string]: string }> = new BehaviorSubject({});
   private loadLineage$: BehaviorSubject<any> = new BehaviorSubject([]);
+  public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
 
   constructor(private proxy: HomeProxy) { }
 
   public stopScan(): void {
     this.shouldStopScan = true;
+    this.scanInfoStatusChanged$ = new BehaviorSubject({});
+    this.scanInfoStatusByScanId = {};
   }
 
   public getLoadLineage(): Observable<any> {
@@ -43,7 +46,7 @@ export class ScanService {
   }
 
   public initScanInfoStatusChanged(): void {
-    this.scanInfoStatusChanged$ = new BehaviorSubject({});
+   
   }
 
   public downloadJson(scanInfoStatusByScanId: { [scanInfoId: string]: string }) {

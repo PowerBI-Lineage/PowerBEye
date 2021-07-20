@@ -30,7 +30,6 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
   public datasets: Dataset[] = [];
 
   public canStartScan: boolean = false;
-  public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
   public scanStatusPercent: number = 0;
   private progressBarDialogRef: MatDialogRef<ProgressBarDialogComponent>;
   private destroy$: Subject<void> = new Subject();
@@ -99,13 +98,13 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       if (this.scanService.shouldStopScan) {
         break;
       }
-      this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
-      this.scanService.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
+      this.scanService.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
+      this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
       await this.sleep(1000);
       scanInfo = await this.proxy.getWorkspacesScanStatus(scanInfo.id).toPromise();
     }
-    this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
-    this.scanService.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
+    this.scanService.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
+    this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
   }
 
   public sleep(ms) {
