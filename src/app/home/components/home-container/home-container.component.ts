@@ -1,16 +1,17 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { HomeProxy } from '../../services/home-proxy.service';
+import { ScanService } from '../../services/scan.service';
 import ForceGraph3D from '3d-force-graph';
 import { Report, Dataset } from '../../models/dataModel';
 import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
 import { AuthService } from 'src/app/services/auth.service';
 import SpriteText from 'three-spritetext';
-import { take } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { take, map, switchMap, takeUntil, filter } from 'rxjs/operators';
+import { forkJoin, Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
-import { constants } from 'buffer';
+import { LoginDialogComponent } from 'src/app/components/login-dialog/login-dialog.component';
 
 const WorkspaceLimit: number = 100;
 const maxParallelBEcalls: number = 16;
@@ -20,7 +21,7 @@ const maxParallelBEcalls: number = 16;
   templateUrl: './home-container.component.html',
   styleUrls: ['./home-container.component.less']
 })
-export class HomeContainerComponent {
+export class HomeContainerComponent implements OnInit, OnDestroy {
   public isScanTenantInProgress: boolean = false;
   public shouldShowGraph = false;
   public nodes: Node[] = [];
@@ -31,10 +32,12 @@ export class HomeContainerComponent {
   public canStartScan: boolean = false;
   public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
   public scanStatusPercent: number = 0;
+  private destroy$: Subject<void> = new Subject();
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor (private proxy: HomeProxy,
+  constructor(private proxy: HomeProxy,
+    private scanService: ScanService,
     private authService: AuthService,
     private dialog: MatDialog) {
     this.authService.getToken().subscribe((token: string) => {
@@ -42,10 +45,25 @@ export class HomeContainerComponent {
     });
   }
 
-  public async startScan (): Promise<void> {
+  public ngOnInit(): void {
+    this.scanService.getLoadLineage().pipe(
+      filter(data => !data),
+      takeUntil(this.destroy$),
+    )
+    .subscribe(workspaces => this.loadLineage(workspaces));
+  }
+
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  public async startScan(): Promise<void> {
     if (!this.canStartScan) {
+      this.dialog.open(LoginDialogComponent);
       return;
     }
+
     this.dialog.open(ProgressBarDialogComponent);
     this.isScanTenantInProgress = true;
     try {
@@ -73,38 +91,27 @@ export class HomeContainerComponent {
     }
   }
 
-  public async getWorkspacesScanFiles (workspaceIds: string[]) {
+  public async getWorkspacesScanFiles(workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
-      if (this.proxy.shouldStopScan) {
+      if (this.scanService.shouldStopScan) {
         break;
       }
       this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
-      this.proxy.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
+      this.scanService.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
       await this.sleep(1000);
       scanInfo = await this.proxy.getWorkspacesScanStatus(scanInfo.id).toPromise();
     }
     this.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
-    this.proxy.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
-    // this.downloadFiles(scanInfo);
+    this.scanService.setScanInfoStatusChanged(this.scanInfoStatusByScanId);
   }
 
-  public sleep (ms) {
+  public sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // public downloadFiles(scanInfo): void {
-  //   if (scanInfo.status !== 'Succeeded') {
-  //     return;
-  //   }
-
-  //   this.proxy.getWorkspacesScanResult(scanInfo.id).subscribe(result => {
-  //     this.saveAsFile(JSON.stringify(result), 'workspaces' + scanInfo.id + '.JSON', 'text/plain;charset=utf-8');
-  //   });
-  // }
-
-  public onAddFile (): void {
+  public onAddFile(): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -112,7 +119,7 @@ export class HomeContainerComponent {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded (): void {
+  public onFileAdded(): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -128,7 +135,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private getNodeColor (nodeType: NodeType): string {
+  private getNodeColor(nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -151,7 +158,7 @@ export class HomeContainerComponent {
     }
   }
 
-  private getNodeTypeImage (nodeType: NodeType): THREE.Mesh {
+  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -187,7 +194,7 @@ export class HomeContainerComponent {
     return sphere;
   }
 
-  private loadLineage (workspaces): void {
+  private loadLineage(workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -201,7 +208,7 @@ export class HomeContainerComponent {
       this.nodes.push(workspaceNode);
       numberOfWorkspaces++;
 
-      for (const dataset of workspace.datasets) {
+      for (const dataset of workspace.datasets ?? []) {
         dataset.workspaceId = workspace.id;
         this.datasets.push(dataset);
 
@@ -232,7 +239,7 @@ export class HomeContainerComponent {
         }
       }
 
-      for (const dataflow of workspace.dataflows) {
+      for (const dataflow of workspace.dataflows ?? []) {
         dataflow.workspaceId = workspace.id;
         const dataflowNode: Node = {
           id: dataflow.objectId,
@@ -261,7 +268,7 @@ export class HomeContainerComponent {
         }
       }
 
-      for (const report of workspace.reports) {
+      for (const report of workspace.reports ?? []) {
         report.workspaceId = workspace.id;
         this.reports.push(report);
 
@@ -279,7 +286,7 @@ export class HomeContainerComponent {
         });
       }
 
-      for (const dashboard of workspace.dashboards) {
+      for (const dashboard of workspace.dashboards ?? []) {
         dashboard.workspaceId = workspace.id;
         const dashboardNode: Node = {
           id: dashboard.id,
@@ -297,7 +304,7 @@ export class HomeContainerComponent {
     }
 
     // Creating cross workspace connections between Reports and datasets
-    for (const report of this.reports) {
+    for (const report of this.reports ?? []) {
       const reportDatasetNode = this.datasets.find(dataset => dataset.id === report.datasetId);
       if (reportDatasetNode) {
         const datasetWorkspaceId = reportDatasetNode.workspaceId;
@@ -382,7 +389,7 @@ export class HomeContainerComponent {
     this.shouldShowGraph = true;
   }
 
-  private async getWorkspacesScanFilesParallel (workspaceIds: string[]) {
+  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
     let index = 0;
     const observables = [];
     while (index < workspaceIds.length) {
@@ -390,10 +397,5 @@ export class HomeContainerComponent {
       index += 100;
     }
     forkJoin(observables).pipe(take(1)).subscribe();
-
-    // range(0, workspaceIds.length).pipe(
-    //   bufferCount(maxParallelBEcalls),
-    //   concatMap((calls: number[]) => forkJoin(calls.map(call =>
-    //     this.getWorkspacesScanFiles(workspaceIds.slice(index, index + 100)))
   }
 }

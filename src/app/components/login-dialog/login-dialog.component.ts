@@ -9,7 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class LoginDialogComponent {
   public token: string;
-
+  
   constructor (private authService: AuthService,
     private dialogRef: MatDialogRef<LoginDialogComponent>) { }
 
