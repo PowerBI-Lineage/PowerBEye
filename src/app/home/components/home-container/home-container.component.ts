@@ -236,7 +236,6 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
                 target: dataset.workspaceId,
                 type: LinkType.CrossWorkspace
               });
-              workspaceNode.crossWSIds.push(upstreamDataflow.groupId);
             }
           }
         }
@@ -266,7 +265,6 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
                 type: LinkType.CrossWorkspace
               });
             }
-            workspaceNode.crossWSIds.push(dataflow.workspaceId);
           }
         }
       }
@@ -317,13 +315,21 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
             target: report.workspaceId,
             type: LinkType.CrossWorkspace
           });
-          this.nodes.find(node => node.id === report.workspaceId).crossWSIds.push(datasetWorkspaceId);
         }
       }
     }
 
     // Need to clear references to workspaces that weren't encountered
     let validLinks: Link[] = this.links.filter(link => workspaces.find(workspace => workspace.id === link.source));
+
+    const crossWorkspaceLinks = validLinks.filter(links => links.type === LinkType.CrossWorkspace);
+    for (const crossWSLink of crossWorkspaceLinks) {
+      const node = this.nodes.find(node => node.id === crossWSLink.source);
+      if (!node) {
+        continue;
+      }
+      node.crossWSIds.push(crossWSLink.target);
+    }
 
     // should reduce workspaces node
     if (numberOfWorkspaces > WorkspaceLimit) {
