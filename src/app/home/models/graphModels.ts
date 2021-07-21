@@ -16,7 +16,8 @@ export interface Node {
   type: NodeType;
   name: string;
   workspaceId: string;
-  crossWSIds?: string[];
+  crossDownstreamWSIds?: string[];
+  crossUpstreamWSIds?: string[];
 }
 
 export interface Link {

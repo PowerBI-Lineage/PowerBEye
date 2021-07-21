@@ -37,7 +37,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor(private proxy: HomeProxy,
+  constructor (private proxy: HomeProxy,
     private scanService: ScanService,
     private authService: AuthService,
     private dialog: MatDialog) {
@@ -46,19 +46,19 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnInit(): void {
+  public ngOnInit (): void {
     this.scanService.getLoadLineage().pipe(
       takeUntil(this.destroy$)
     )
       .subscribe(workspaces => workspaces && workspaces.length > 0 ? this.loadLineage(workspaces) : null);
   }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy (): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  public async startScan(): Promise<void> {
+  public async startScan (): Promise<void> {
     if (!this.canStartScan) {
       this.dialog.open(LoginDialogComponent);
       return;
@@ -78,12 +78,12 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       switch (e.status) {
         case 401: {
           // TODO: show error "No tenant admin is logged in".
-          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 401', errorMessage: 'No tenant admin is logged in, please login as a tenant admin' } })
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 401', errorMessage: 'No tenant admin is logged in, please login as a tenant admin' } });
           // alert('401 - No tenant admin is logged in');
           break;
         }
         case 403: {
-          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 403', errorMessage: 'The token is not correct, please change the environment or refresh the token' } })
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 403', errorMessage: 'The token is not correct, please change the environment or refresh the token' } });
           // TODO: show error "change the environment / refresh the token".
           // alert('403 - change the environment / refresh the token');
           break;
@@ -94,7 +94,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async getWorkspacesScanFiles(workspaceIds: string[]) {
+  public async getWorkspacesScanFiles (workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
@@ -110,11 +110,11 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
   }
 
-  public sleep(ms) {
+  public sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  public onAddFile(): void {
+  public onAddFile (): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -122,7 +122,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded(): void {
+  public onFileAdded (): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -138,7 +138,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeColor(nodeType: NodeType): string {
+  private getNodeColor (nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -161,7 +161,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
+  private getNodeTypeImage (nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -197,7 +197,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     return sphere;
   }
 
-  private loadLineage(workspaces): void {
+  private loadLineage (workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -205,7 +205,8 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
         id: workspace.id,
         name: workspace.name,
         type: NodeType.Workspace,
-        crossWSIds: [],
+        crossDownstreamWSIds: [],
+        crossUpstreamWSIds: [],
         workspaceId: workspace.id
       };
       this.nodes.push(workspaceNode);
@@ -324,20 +325,25 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
 
     const crossWorkspaceLinks = validLinks.filter(links => links.type === LinkType.CrossWorkspace);
     for (const crossWSLink of crossWorkspaceLinks) {
-      const node = this.nodes.find(node => node.id === crossWSLink.source);
-      if (!node) {
-        continue;
+      const downNode = this.nodes.find(node => node.id === crossWSLink.source);
+      if (downNode) {
+        downNode.crossDownstreamWSIds.push(crossWSLink.target);
       }
-      node.crossWSIds.push(crossWSLink.target);
+
+      const upNode = this.nodes.find(node => node.id === crossWSLink.target);
+      if (upNode) {
+        upNode.crossUpstreamWSIds.push(crossWSLink.source);
+      }
     }
 
     // should reduce workspaces node
     if (numberOfWorkspaces > WorkspaceLimit) {
       const workspaceNodes = this.nodes.filter(node => node.type === NodeType.Workspace);
-      const limitedWorkspaceInfo = workspaceNodes.sort(function (a, b) { return b.crossWSIds.length > a.crossWSIds.length ? 1 : -1; }).slice(0, WorkspaceLimit).map(node => {
+      const limitedWorkspaceInfo = workspaceNodes.sort(function (a, b) { return (b.crossDownstreamWSIds.length + b.crossUpstreamWSIds.length) > (a.crossDownstreamWSIds.length + a.crossUpstreamWSIds.length) ? 1 : -1; }).slice(0, WorkspaceLimit).map(node => {
         return {
           id: node.id,
-          crossWSIds: node.crossWSIds
+          crossDownstreamWSIds: node.crossDownstreamWSIds,
+          crossUpstreamWSIds: node.crossUpstreamWSIds
         };
       });
 
@@ -348,7 +354,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
           continue;
         }
         limitedWorkspaceNodes.push(info.id);
-        limitedWorkspaceNodes = [...new Set([...limitedWorkspaceNodes, ...info.crossWSIds])];
+        limitedWorkspaceNodes = [...new Set([...limitedWorkspaceNodes, ...info.crossDownstreamWSIds, ...info.crossUpstreamWSIds])];
       }
 
       this.nodes = this.nodes.filter(node => limitedWorkspaceNodes.includes(node.workspaceId));
@@ -404,7 +410,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.shouldShowGraph = true;
   }
 
-  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
+  private async getWorkspacesScanFilesParallel (workspaceIds: string[]) {
     let index = 0;
     const observables = [];
     while (index < workspaceIds.length) {

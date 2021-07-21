@@ -34,7 +34,7 @@ export class AppBarComponent {
 
       if (!parsedToken) {
         if (this.isNotFirstTime) {
-          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error', errorMessage: 'The token is invalid, please refresh your token and try again' } })
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error', errorMessage: 'The token is invalid, please refresh your token and try again' } });
         }
         this.isNotFirstTime = true;
       }
