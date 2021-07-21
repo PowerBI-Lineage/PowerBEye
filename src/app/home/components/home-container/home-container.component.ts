@@ -7,7 +7,7 @@ import { Link, LinkType, Node, NodeType } from '../../models/graphModels';
 import * as THREE from 'three';
 import { AuthService } from 'src/app/services/auth.service';
 import SpriteText from 'three-spritetext';
-import { take, map, switchMap, takeUntil, filter } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 import { forkJoin, Subject } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
@@ -361,6 +361,12 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
         if (node.type === NodeType.Workspace) {
           const url: string = this.proxy.getEnvironment().url;
           window.open(`${url}/groups/${node.id}/lineage`, '_blank');
+          return;
+        }
+
+        if (node.type === NodeType.Dataset) {
+          const url: string = this.proxy.getEnvironment().url;
+          window.open(`${url}/datahub/datasets/${node.id}`, '_blank');
         }
       })
       .linkDirectionalParticles((link: any) => {
