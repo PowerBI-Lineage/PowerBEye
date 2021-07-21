@@ -9,7 +9,7 @@ declare let saveAs: any;
 export class HomeProxy {
   private token: string;
 
-  constructor(private httpService: HttpClient,
+  constructor (private httpService: HttpClient,
     private authService: AuthService,
     private route: ActivatedRoute) {
     this.authService.getToken().subscribe((token: string) => {
@@ -17,7 +17,7 @@ export class HomeProxy {
     });
   }
 
-  public async getModifedWorkspaces(): Promise<Observable<any>> {
+  public async getModifedWorkspaces (): Promise<Observable<any>> {
     const apiUrl: string = this.getEnvironment().apiUrl;
 
     const req = {
@@ -33,7 +33,7 @@ export class HomeProxy {
     return this.httpService.get(req.url, req);
   }
 
-  public getWorkspacesInfo(workspaceArray: string[]): Observable<any> {
+  public getWorkspacesInfo (workspaceArray: string[]): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'POST',
@@ -47,7 +47,7 @@ export class HomeProxy {
     return this.httpService.post(req.url, { workspaces: workspaceArray }, req);
   }
 
-  public getWorkspacesScanStatus(scanId: string): Observable<any> {
+  public getWorkspacesScanStatus (scanId: string): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
@@ -61,7 +61,7 @@ export class HomeProxy {
     return this.httpService.get(req.url, req);
   }
 
-  public getWorkspacesScanResult(scanId: string): Observable<any> {
+  public getWorkspacesScanResult (scanId: string): Observable<any> {
     const apiUrl: string = this.getEnvironment().apiUrl;
     const req = {
       method: 'GET',
@@ -75,7 +75,7 @@ export class HomeProxy {
     return this.httpService.get(req.url, req);
   }
 
-  public getEnvironment(): { apiUrl: string, url: string } {
+  public getEnvironment (): { apiUrl: string, url: string } {
     const env: string = this.route.snapshot.queryParams.env;
     const envLowerCase: string = env ? env.toLocaleLowerCase() : env;
     switch (envLowerCase) {

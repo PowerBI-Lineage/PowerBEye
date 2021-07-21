@@ -15,19 +15,19 @@ export class ScanService {
   private loadLineage$: BehaviorSubject<any> = new BehaviorSubject([]);
   public scanInfoStatusByScanId: { [scanInfoId: string]: string } = {};
 
-  constructor(private proxy: HomeProxy) { }
+  constructor (private proxy: HomeProxy) { }
 
-  public stopScan(): void {
+  public stopScan (): void {
     this.shouldStopScan = true;
     this.scanInfoStatusChanged$ = new BehaviorSubject({});
     this.scanInfoStatusByScanId = {};
   }
 
-  public getLoadLineage(): Observable<any> {
+  public getLoadLineage (): Observable<any> {
     return this.loadLineage$.asObservable();
   }
 
-  public loadLineage(scanInfoStatusByScanId: { [scanInfoId: string]: string }): void {
+  public loadLineage (scanInfoStatusByScanId: { [scanInfoId: string]: string }): void {
     if (this.latestWorkspacesResult) {
       this.loadLineage$.next(this.latestWorkspacesResult);
     } else {
@@ -37,25 +37,25 @@ export class ScanService {
     }
   }
 
-  public getScanInfoStatusChanged(): Observable<{ [scanInfoId: string]: string }> {
+  public getScanInfoStatusChanged (): Observable<{ [scanInfoId: string]: string }> {
     return this.scanInfoStatusChanged$.asObservable();
   }
 
-  public setScanInfoStatusChanged(value: { [scanInfoId: string]: string }): void {
+  public setScanInfoStatusChanged (value: { [scanInfoId: string]: string }): void {
     this.scanInfoStatusChanged$.next(value);
   }
 
-  public initScanInfoStatusChanged(): void {
-   
+  public initScanInfoStatusChanged (): void {
+
   }
 
-  public downloadJson(scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
+  public downloadJson (scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
     this.getWorkspacesResult(scanInfoStatusByScanId).pipe(take(1)).subscribe(result => {
       this.saveAsFile(JSON.stringify(result), `workspaces${(new Date().toJSON().slice(0, 10))}.JSON`, 'text/plain;charset=utf-8');
     });
   }
 
-  public getWorkspacesResult(scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
+  public getWorkspacesResult (scanInfoStatusByScanId: { [scanInfoId: string]: string }) {
     const observables = [];
 
     for (const [scanInfoId, scanInfoStatus] of Object.entries(scanInfoStatusByScanId)) {
@@ -74,7 +74,7 @@ export class ScanService {
     }));
   }
 
-  public saveAsFile(t: any, f: any, m: any): void {
+  public saveAsFile (t: any, f: any, m: any): void {
     try {
       const b = new Blob([t], { type: m });
       saveAs(b, f);

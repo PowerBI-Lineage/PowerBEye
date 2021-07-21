@@ -36,7 +36,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor(private proxy: HomeProxy,
+  constructor (private proxy: HomeProxy,
     private scanService: ScanService,
     private authService: AuthService,
     private dialog: MatDialog) {
@@ -45,25 +45,25 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnInit(): void {
+  public ngOnInit (): void {
     this.scanService.getLoadLineage().pipe(
-      takeUntil(this.destroy$),
+      takeUntil(this.destroy$)
     )
-    .subscribe(workspaces => workspaces && workspaces.length > 0 ? this.loadLineage(workspaces) : null);
+      .subscribe(workspaces => workspaces && workspaces.length > 0 ? this.loadLineage(workspaces) : null);
   }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy (): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  public async startScan(): Promise<void> {
+  public async startScan (): Promise<void> {
     if (!this.canStartScan) {
       this.dialog.open(LoginDialogComponent);
       return;
     }
     this.scanService.shouldStopScan = false;
-    this.progressBarDialogRef = this.dialog.open(ProgressBarDialogComponent, {disableClose: true});
+    this.progressBarDialogRef = this.dialog.open(ProgressBarDialogComponent, { disableClose: true });
     this.isScanTenantInProgress = true;
     try {
       const resultObserable = await this.proxy.getModifedWorkspaces();
@@ -91,7 +91,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async getWorkspacesScanFiles(workspaceIds: string[]) {
+  public async getWorkspacesScanFiles (workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
@@ -107,11 +107,11 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
   }
 
-  public sleep(ms) {
+  public sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  public onAddFile(): void {
+  public onAddFile (): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -119,7 +119,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded(): void {
+  public onFileAdded (): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -135,7 +135,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeColor(nodeType: NodeType): string {
+  private getNodeColor (nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -158,7 +158,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
+  private getNodeTypeImage (nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -194,7 +194,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     return sphere;
   }
 
-  private loadLineage(workspaces): void {
+  private loadLineage (workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -389,7 +389,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.shouldShowGraph = true;
   }
 
-  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
+  private async getWorkspacesScanFilesParallel (workspaceIds: string[]) {
     let index = 0;
     const observables = [];
     while (index < workspaceIds.length) {
