@@ -6,6 +6,7 @@ import { LoginDialogComponent } from './../login-dialog/login-dialog.component';
 const Login: string = 'Login';
 const UpdateToken: string = 'Update Token';
 const Welcome: string = 'Welcome';
+const homeUrl = 'https://powerbi-lineage.github.io/PowerBEye';
 
 @Component({
   selector: 'app-bar',
@@ -32,7 +33,7 @@ export class AppBarComponent {
   }
 
   public handleHomeNavigation (): void {
-    location.reload();
+    location.replace(homeUrl);
   }
 
   public openDialog () {
