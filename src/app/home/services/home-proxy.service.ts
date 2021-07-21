@@ -100,13 +100,13 @@ export class HomeProxy {
       }
       case 'prod': {
         return {
-          apiUrl: 'wabi-staging-us-east-redirect.analysis.windows.net',
+          apiUrl: 'api.powerbi.com',
           url: 'https://app.powerbi.com/'
         };
       }
       default:
         return {
-          apiUrl: 'wabi-staging-us-east-redirect.analysis.windows.net',
+          apiUrl: 'api.powerbi.com',
           url: 'https://app.powerbi.com/'
         };
     }
