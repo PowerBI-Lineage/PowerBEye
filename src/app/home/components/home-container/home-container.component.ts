@@ -229,8 +229,8 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
           for (const upstreamDataflow of dataset.upstreamDataflows) {
             if (upstreamDataflow.groupId !== dataset.workspaceId) {
               this.links.push({
-                source: dataset.workspaceId,
-                target: upstreamDataflow.groupId,
+                source: upstreamDataflow.groupId,
+                target: dataset.workspaceId,
                 type: LinkType.CrossWorkspace
               });
               workspaceNode.crossWSIds.push(upstreamDataflow.groupId);
@@ -258,8 +258,8 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
           for (const upstreamDataflow of dataflow.upstreamDataflows) {
             if (upstreamDataflow.groupId !== dataflow.workspaceId) {
               this.links.push({
-                source: dataflow.workspaceId,
-                target: upstreamDataflow.groupId,
+                source: upstreamDataflow.groupId,
+                target: dataflow.workspaceId,
                 type: LinkType.CrossWorkspace
               });
             }
@@ -310,8 +310,8 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
         const datasetWorkspaceId = reportDatasetNode.workspaceId;
         if (report.workspaceId !== datasetWorkspaceId) {
           this.links.push({
-            source: report.workspaceId,
-            target: datasetWorkspaceId,
+            source: datasetWorkspaceId,
+            target: report.workspaceId,
             type: LinkType.CrossWorkspace
           });
           this.nodes.find(node => node.id === report.workspaceId).crossWSIds.push(datasetWorkspaceId);
