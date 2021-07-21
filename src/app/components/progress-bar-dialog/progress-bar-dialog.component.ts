@@ -42,8 +42,14 @@ export class ProgressBarDialogComponent implements OnInit, OnDestroy {
             numberOfSuccessRequests++;
           }
         }
-        this.scanStatusPercent = Math.round((numberOfSuccessRequests / numberOfRequests) * 100);
+        this.scanStatusPercent = Math.round((numberOfSuccessRequests / numberOfRequests) * 100) || 0;
         this.isScanTenantInProgress = this.scanStatusPercent < 100;
+        if (!this.isScanTenantInProgress) {
+          setTimeout(() => {
+            this.downloadJson();
+            this.closeDialog();
+          }, 1000);
+        }
       });
   }
 

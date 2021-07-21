@@ -100,7 +100,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       }
       this.scanService.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
       this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
-      await this.sleep(1000);
+      await this.sleep(2000);
       scanInfo = await this.proxy.getWorkspacesScanStatus(scanInfo.id).toPromise();
     }
     this.scanService.scanInfoStatusByScanId[scanInfo.id] = scanInfo.status;
