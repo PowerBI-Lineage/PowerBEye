@@ -1,6 +1,9 @@
-<h1 mat-dialog-title>{{isScanTenantInProgress ? 'Scanning' : 'Finish the Scanning' }}</h1>
+<div mat-dialog-title class="header-dialog">
+    <h1>{{isScanTenantInProgress ? 'Scanning' : 'Finish the Scanning' }}</h1>
+    <button class="close-button" mat-button mat-dialog-close (click)="closeDialog()">X</button>
+</div>
 
-<div mat-dialog-content>
+<div class="content-dialog" mat-dialog-content>
     <div class="Percent">{{scanStatusPercent || 0}}%</div>
     <mat-progress-bar class="progress-bar" *ngIf="isScanTenantInProgress || scanStatusPercent === 100" 
 	[value]="scanStatusPercent"
@@ -8,6 +11,6 @@
 </mat-progress-bar>
 </div>
 
-<mat-dialog-actions>
-	<button mat-button mat-dialog-close (click)="closeDialog()">{{isScanTenantInProgress ? 'Stop scan' : 'Close'}}</button>
+<mat-dialog-actions class="actions-dialog">
+	<button class="secondary" mat-button mat-dialog-close (click)="closeDialog()">{{isScanTenantInProgress ? 'Stop scan' : 'Close'}}</button>
 <mat-dialog-actions>

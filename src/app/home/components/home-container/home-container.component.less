@@ -1,3 +1,5 @@
+@import '/src/common.less';
+
 :host {
     .container {
         display: flex;
@@ -33,7 +35,7 @@
           font-size: 50px;
           line-height: 67px;
 
-          color: #FFB775;
+          color: @theme-secondary-color;
         }
 
         .subTitle {
@@ -80,7 +82,7 @@
           font-size: 40px;
           line-height: 10px;
           color: #FFFFFF;
-          border: 2px solid #FFB775;
+          border: 2px solid @theme-primary-color;
 
           p {
             text-align: center;

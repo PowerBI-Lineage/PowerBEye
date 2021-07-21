@@ -12,6 +12,7 @@ import { forkJoin, Subject } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ProgressBarDialogComponent } from 'src/app/components/progress-bar-dialog/progress-bar-dialog.component';
 import { LoginDialogComponent } from 'src/app/components/login-dialog/login-dialog.component';
+import { ErrorDialogComponent } from 'src/app/components/error-dialog/error-dialog.component';
 
 const WorkspaceLimit: number = 100;
 const maxParallelBEcalls: number = 16;
@@ -36,7 +37,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
 
   @ViewChild('filesInput', { static: true }) filesInput: ElementRef;
 
-  constructor (private proxy: HomeProxy,
+  constructor(private proxy: HomeProxy,
     private scanService: ScanService,
     private authService: AuthService,
     private dialog: MatDialog) {
@@ -45,19 +46,19 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnInit (): void {
+  public ngOnInit(): void {
     this.scanService.getLoadLineage().pipe(
       takeUntil(this.destroy$)
     )
       .subscribe(workspaces => workspaces && workspaces.length > 0 ? this.loadLineage(workspaces) : null);
   }
 
-  public ngOnDestroy (): void {
+  public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  public async startScan (): Promise<void> {
+  public async startScan(): Promise<void> {
     if (!this.canStartScan) {
       this.dialog.open(LoginDialogComponent);
       return;
@@ -77,12 +78,14 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
       switch (e.status) {
         case 401: {
           // TODO: show error "No tenant admin is logged in".
-          alert('401 - No tenant admin is logged in');
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 401', errorMessage: 'No tenant admin is logged in, please login as a tenant admin' } })
+          // alert('401 - No tenant admin is logged in');
           break;
         }
         case 403: {
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error 403', errorMessage: 'The token is not correct, please change the environment or refresh the token' } })
           // TODO: show error "change the environment / refresh the token".
-          alert('403 - change the environment / refresh the token');
+          // alert('403 - change the environment / refresh the token');
           break;
         }
       }
@@ -91,7 +94,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  public async getWorkspacesScanFiles (workspaceIds: string[]) {
+  public async getWorkspacesScanFiles(workspaceIds: string[]) {
     let scanInfo = await this.proxy.getWorkspacesInfo(workspaceIds).toPromise();
 
     while (scanInfo.status !== 'Succeeded') {
@@ -107,11 +110,11 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.scanService.setScanInfoStatusChanged(this.scanService.scanInfoStatusByScanId);
   }
 
-  public sleep (ms) {
+  public sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  public onAddFile (): void {
+  public onAddFile(): void {
     if (this.isScanTenantInProgress) {
       return;
     }
@@ -119,7 +122,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     (this.filesInput.nativeElement as HTMLInputElement).click();
   }
 
-  public onFileAdded (): void {
+  public onFileAdded(): void {
     const files = (this.filesInput.nativeElement as HTMLInputElement).files;
 
     for (let i = 0; i < files.length; i++) {
@@ -135,7 +138,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeColor (nodeType: NodeType): string {
+  private getNodeColor(nodeType: NodeType): string {
     switch (nodeType) {
       case NodeType.Workspace: {
         return 'rgb(255,0,0,1)';
@@ -158,7 +161,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getNodeTypeImage (nodeType: NodeType): THREE.Mesh {
+  private getNodeTypeImage(nodeType: NodeType): THREE.Mesh {
     let texture = null;
 
     switch (nodeType) {
@@ -194,7 +197,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     return sphere;
   }
 
-  private loadLineage (workspaces): void {
+  private loadLineage(workspaces): void {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
@@ -395,7 +398,7 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     this.shouldShowGraph = true;
   }
 
-  private async getWorkspacesScanFilesParallel (workspaceIds: string[]) {
+  private async getWorkspacesScanFilesParallel(workspaceIds: string[]) {
     let index = 0;
     const observables = [];
     while (index < workspaceIds.length) {

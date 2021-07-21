@@ -1,7 +1,13 @@
-<h1 mat-dialog-title>Power BI Token</h1>
-<div mat-dialog-content>Please enter your Power BI AAD token</div>
-<input type="text" [(ngModel)]="token">
-<div>
-	<button mat-button [disabled]="!token" mat-dialog-close (click)="onClick()">Login</button>
-	<button mat-button mat-dialog-close (click)="closeDialog()">Close</button>
+<div mat-dialog-title class="header-dialog">
+    <h1>Power BI Token</h1>
+    <button class="close-button" mat-button mat-dialog-close (click)="closeDialog()">X</button>
 </div>
+
+<div class="content-dialog" mat-dialog-content>
+    <div mat-dialog-content>Please enter your Power BI AAD token</div>
+	<input class="token-input" type="text" [(ngModel)]="token">
+</div>
+<mat-dialog-actions class="actions-dialog">
+    <button class="primary" mat-button [disabled]="!token" mat-dialog-close (click)="onClick()">Login</button>
+    <button class="secondary" mat-button mat-dialog-close (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

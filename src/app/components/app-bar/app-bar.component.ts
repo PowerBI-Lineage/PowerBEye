@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
 import { LoginDialogComponent } from './../login-dialog/login-dialog.component';
 
 const Login: string = 'Login';
@@ -15,9 +16,10 @@ const homeUrl = 'https://powerbi-lineage.github.io/PowerBEye';
 })
 export class AppBarComponent {
   public welcomeSTR: string;
+  public isNotFirstTime: boolean = false;
 
-  constructor (private dialog: MatDialog,
-               private authService: AuthService) {
+  constructor(private dialog: MatDialog,
+    private authService: AuthService) {
     this.welcomeSTR = Login;
 
     this.authService.getToken().subscribe((token: string) => {
@@ -29,18 +31,25 @@ export class AppBarComponent {
       } else {
         this.welcomeSTR = Login;
       }
+
+      if (!parsedToken) {
+        if (this.isNotFirstTime) {
+          this.dialog.open(ErrorDialogComponent, { data: { title: 'Error', errorMessage: 'The token is invalid, please refresh your token and try again' } })
+        }
+        this.isNotFirstTime = true;
+      }
     });
   }
 
-  public handleHomeNavigation (): void {
-    location.replace(homeUrl);
+  public handleHomeNavigation(): void {
+    location.reload();
   }
 
-  public openDialog () {
+  public openDialog() {
     this.dialog.open(LoginDialogComponent);
   }
 
-  public parseJwt (token: string) {
+  public parseJwt(token: string) {
     try {
       return JSON.parse(atob(token.split('.')[1]));
     } catch (e) {

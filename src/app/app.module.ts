@@ -15,13 +15,15 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ProgressBarDialogComponent } from './components/progress-bar-dialog/progress-bar-dialog.component';
+import { ErrorDialogComponent } from './components/error-dialog/error-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AppBarComponent,
     LoginDialogComponent,
-    ProgressBarDialogComponent
+    ProgressBarDialogComponent,
+    ErrorDialogComponent
   ],
   imports: [
     BrowserModule,
