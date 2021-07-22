@@ -201,6 +201,10 @@ export class HomeContainerComponent implements OnInit, OnDestroy {
     let numberOfWorkspaces = 0;
     // Traversing all workspaces
     for (const workspace of workspaces) {
+      if (workspace.state === 'Deleted') {
+        continue;
+      }
+
       const workspaceNode: Node = {
         id: workspace.id,
         name: workspace.name,
